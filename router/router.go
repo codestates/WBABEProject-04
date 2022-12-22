@@ -2,6 +2,7 @@ package router
 
 import (
 	"WBABEProject-04/controller"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,11 +28,27 @@ func CORS() gin.HandlerFunc {
 		c.Next()
 	}
 }
+func liteAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c == nil {
+			c.Abort()
+			return
+		}
+		auth := c.GetHeader("Authorization")
+
+		fmt.Println("Authorization-word", auth)
+		c.Next()
+	}
+}
 
 func (r *Router) Index() *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	e := gin.Default()
 	e.Use(CORS())
-	e.GET("/")
+	order := e.Group("order", liteAuth())
+	{
+		order.POST("/menu")
+	}
+
 	return e
 }
