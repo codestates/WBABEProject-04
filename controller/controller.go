@@ -97,3 +97,27 @@ func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err
 	})
 	c.Abort()
 }
+func (p *Controller) DelMenu(c *gin.Context) {
+	smenu := c.Param("menu")
+	fmt.Println("이건 뭘까?", smenu)
+	if len(smenu) <= 0 {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
+		return
+	}
+
+	_, err := p.md.GetOneMenu("mune", smenu)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "exist resistery person", nil)
+		return
+	}
+
+	if err := p.md.DeleteMenu(smenu); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail delete db", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}

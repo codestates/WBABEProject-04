@@ -39,6 +39,7 @@ func NewModel() (*Model, error) {
 	return r, nil
 }
 
+// 메뉴이름을 받아 메뉴를 가져온다.
 func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
 	opts := []*options.FindOneOptions{}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -49,7 +50,6 @@ func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
 	// 체크해줄 필요가 있는가? -> 고민해보자
 	if flag == "name" {
 		filter = bson.M{"name": elem}
-		fmt.Println("플래그는 네임이 맞음")
 	}
 	var menus Menu
 	if err := m.collection.FindOne(ctx, filter, opts...).Decode(&menus); err != nil {
@@ -59,6 +59,7 @@ func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
 	}
 }
 
+// 메뉴를 생성한다.
 func (m *Model) CreateMenu(menus Menu) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -66,6 +67,19 @@ func (m *Model) CreateMenu(menus Menu) error {
 	if _, err := m.collection.InsertOne(ctx, menus); err != nil {
 		fmt.Println("fail insert new menu")
 		return fmt.Errorf("fail, insert")
+	}
+	return nil
+}
+
+func (m *Model) DeleteMenu(smenu string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"name": smenu}
+	if res, err := m.collection.DeleteOne(ctx, filter); res.DeletedCount <= 0 {
+		return fmt.Errorf("could not delete, not found menu %s", smenu)
+	} else if err != nil {
+		return err
 	}
 	return nil
 }

@@ -50,12 +50,13 @@ func (r *Router) Index() *gin.Engine {
 	e.Use(CORS())
 
 	logger.Info("start server")
-	// order := e.Group("order", liteAuth())
-	// {
-	// 	// 메뉴 등록
-	// 	order.POST("/menu", r.ct.RegisterMenu)
+	order := e.Group("order", liteAuth())
+	{
+		// 메뉴 등록
+		order.POST("/menu", r.ct.RegisterMenu)
+		order.DELETE("/menu/:menu", r.ct.DelMenu)
 
-	// }
+	}
 
 	return e
 }
