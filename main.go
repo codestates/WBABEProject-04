@@ -6,6 +6,9 @@ import (
 	"WBABEProject-04/router"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -33,6 +36,10 @@ func main() {
 		g.Go(func() error {
 			return mapi.ListenAndServe()
 		})
+		quit := make(chan os.Signal)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+
 		if err := g.Wait(); err != nil {
 			panic(fmt.Errorf("error > %v", err))
 		}
