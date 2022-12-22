@@ -2,6 +2,7 @@ package router
 
 import (
 	"WBABEProject-04/controller"
+	"WBABEProject-04/logger"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -44,6 +45,8 @@ func liteAuth() gin.HandlerFunc {
 func (r *Router) Index() *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	e := gin.Default()
+	e.Use(logger.GinLogger())
+	e.Use(logger.GinRecovery(true))
 	e.Use(CORS())
 	order := e.Group("order", liteAuth())
 	{
