@@ -1,11 +1,13 @@
 package main
 
 import (
+	"WBABEProject-04/conf"
 	"WBABEProject-04/controller"
 	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"WBABEProject-04/router"
 	"context"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -21,6 +23,14 @@ var (
 )
 
 func main() {
+	var configFlag = flag.String("config", "./conf/config.toml", "toml file to use for configuration")
+	flag.Parse()
+	cf := conf.NewConfig(*configFlag)
+	// 로그 초기화
+	if err := logger.InitLogger(cf); err != nil {
+		fmt.Printf("init logger failed, err:%v\n", err)
+		return
+	}
 	if model, err := model.NewModel(); err != nil {
 		panic(fmt.Errorf("model.NewMode > %v", err))
 	} else if controller, err := controller.NewController(model); err != nil {

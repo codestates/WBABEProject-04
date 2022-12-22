@@ -48,10 +48,14 @@ func (r *Router) Index() *gin.Engine {
 	e.Use(logger.GinLogger())
 	e.Use(logger.GinRecovery(true))
 	e.Use(CORS())
-	order := e.Group("order", liteAuth())
-	{
-		order.POST("/menu")
-	}
+
+	logger.Info("start server")
+	// order := e.Group("order", liteAuth())
+	// {
+	// 	// 메뉴 등록
+	// 	order.POST("/menu", r.ct.RegisterMenu)
+
+	// }
 
 	return e
 }
