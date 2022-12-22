@@ -2,8 +2,10 @@ package main
 
 import (
 	"WBABEProject-04/controller"
+	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"WBABEProject-04/router"
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -40,9 +42,22 @@ func main() {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		<-quit
 
-		if err := g.Wait(); err != nil {
-			panic(fmt.Errorf("error > %v", err))
+		logger.Warn("Shutdown Server ...") // <
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := mapi.Shutdown(ctx); err != nil {
+			logger.Error("Server Shutdown:", err)
 		}
 
+		select {
+		case <-ctx.Done():
+			logger.Info("timeout of 5 seconds.")
+		}
+
+		logger.Info("Server exiting")
+	}
+	if err := g.Wait(); err != nil {
+		logger.Error(err)
 	}
 }
