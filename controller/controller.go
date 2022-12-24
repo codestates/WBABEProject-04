@@ -14,6 +14,11 @@ type Controller struct {
 	md *model.Model
 }
 
+func NewController(rep *model.Model) (*Controller, error) {
+	r := &Controller{md: rep}
+	return r, nil
+}
+
 // 에러 처리 함수
 func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err ...interface{}) {
 	logger.Debug("RespError")

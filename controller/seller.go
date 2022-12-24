@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"WBABEProject-04/model"
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +17,52 @@ import (
 // @Produce  json
 // @Router /menu [post]
 func (p *Controller) RegisterMenu(c *gin.Context) {
-	pMenu = p.md.Menu{}
+	// 필수 정보
+	// 이름(name)
+	// 가격(price)
+	// 수량(quantity)
+	// 원산지(Origin)
+	fmt.Println("RegisterMenu")
+	pMenu := model.Menu{}
 
 	if err := c.ShouldBindJSON(&pMenu); err != nil {
-		panic(err)
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		c.Abort()
+		return
 	}
-	fmt.Println(pMenu)
+
+	if len(pMenu.Name) <= 0 {
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		c.Abort()
+		return
+	}
+	if len(pMenu.Origin) <= 0 {
+		pMenu.Origin = "국내산"
+	}
+
+	// pReview := []model.Review{}
+	pMenu.Review = nil
+
+	_, err := p.md.GetOneMenu(pMenu.Name)
+
+	// 이미 등록된 메뉴가 있으면
+	if err == nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "already resistery menu", nil)
+		return
+	}
+
+	err = p.md.CreateMenu(pMenu)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"result": "ok",
+	})
+	c.Next()
 }
+
 
 // // RegisterStore godoc
 // // @Summary call RegisterStore, return ok by json.

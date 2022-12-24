@@ -59,8 +59,8 @@ func (r *Router) Index() *gin.Engine {
 	{
 
 		// 메뉴 등록
-		menu.POST("/", r.ct.RegisterMenu)
-		// menu.DELETE("/:menu", r.ct.DelMenu)
+		menu.POST("", r.ct.RegisterMenu)
+		menu.DELETE("/:menu", r.ct.DelMenu)
 		// menu.GET("/:name", r.ct.GetMenuWithName)
 		// menu.GET("/", r.ct.GetMenu)
 		// menu.PUT("/", r.ct.UpdateMenu)

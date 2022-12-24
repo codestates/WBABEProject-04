@@ -2,7 +2,7 @@ package model
 
 type Review struct {
 	Content  string   `json:"content" bson:"content"`
-	Menus    Menu     `json:"menus" bson:"menus"`
+	Menu     Menu     `json:"menu" bson:"menu"`
 	Customer Customer `json:"customer" bson:"customer"`
 }
 
