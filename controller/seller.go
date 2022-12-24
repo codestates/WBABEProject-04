@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"fmt"
 	"net/http"
@@ -63,6 +64,176 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 	c.Next()
 }
 
+// DelMenu godoc
+// @Summary call DelMenu, return ok by json.
+// @Description 메뉴의 이름을 파라미터로 받아 해당 메뉴를 삭제하는 기능
+// @Router /order/menu/:name [delete]
+func (p *Controller) DelMenu(c *gin.Context) {
+	logger.Debug("DelMenu")
+	sMenu := c.Param("menu")
+	if len(sMenu) <= 0 {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
+		return
+	}
+
+	_, err := p.md.GetOneMenu(sMenu)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "exist resistery menu", nil)
+		return
+	}
+
+	if err := p.md.DeleteMenu(sMenu); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail delete db", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
+}
+
+// // UpdateMenu godoc
+// // @Summary call UpdateMenu, return ok by json.
+// // @Description 기존 메뉴의 정보를 변경할 수 있다.
+// // @Router /menu [post]
+func (p *Controller) UpdateMenu(c *gin.Context) {
+	var recvMenu model.Menu
+	err := c.ShouldBindJSON(&recvMenu)
+	if err != nil {
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		c.Abort()
+		return
+	}
+
+	menu, err := p.md.GetOneMenu(recvMenu.Name)
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update db", err)
+		return
+	}
+	var tempMenu model.Menu
+	tempMenu.Name = menu.Name
+
+	// 주문 가능 여부가 true면 true
+	if recvMenu.Available {
+		tempMenu.Available = true
+	} else {
+		tempMenu.Available = menu.Available
+	}
+	// 입력 받은 수량이 0이 아니면 (입력을 받은 것이므로)
+	if recvMenu.Quantity != 0 {
+		tempMenu.Quantity = recvMenu.Quantity
+	}
+
+	// 원산지를 입력 받으면 수정
+	if len(recvMenu.Origin) > 0 {
+		tempMenu.Origin = recvMenu.Origin
+	} else {
+		tempMenu.Origin = menu.Origin
+	}
+
+	// Price를 입력 받으면 수정
+	if recvMenu.Price > 0 {
+		tempMenu.Price = recvMenu.Price
+	} else {
+		tempMenu.Price = menu.Price
+	}
+
+	// Spiciness를 입력 받으면 수정
+	if recvMenu.Spiciness > 0 {
+		tempMenu.Spiciness = recvMenu.Spiciness
+	} else {
+		tempMenu.Spiciness = menu.Spiciness
+	}
+	// 추천 메뉴가 선택되면
+	if recvMenu.Favorites {
+		tempMenu.Favorites = true
+	}
+
+	if err := p.md.UpdateMenu(tempMenu); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+}
+
+// // GetMenu godoc
+// // @Summary call GetMenu, return ok by json.
+// // @Description 등록된 메뉴 전체의 리스트를 가져올 수 있다.
+// // @Router /order/menu [get]
+// func (p *Controller) UpdateMenu(c *gin.Context) {
+// 	var recvMenu model.Menu
+// 	err := c.ShouldBindJSON(&recvMenu)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, err.Error())
+// 		return
+// 	}
+// 	var menu model.Menu
+// 	if menu, err = p.md.GetOneMenu("name", recvMenu.Name); err != nil {
+// 		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update db", err)
+// 		return
+// 	}
+
+// 	var tempMenu model.Menu
+// 	tempMenu.Name = menu.Name
+// 	// 주문 불가능 여부 (true : 주문 불가능)
+// 	if recvMenu.Order {
+// 		tempMenu.Order = true
+// 	} else {
+// 		tempMenu.Order = menu.Order
+// 	}
+
+// 	// 원산지가 비어있지 않으면
+// 	if recvMenu.Origin != "" {
+// 		// Client에게 받은 원산지 저장
+// 		tempMenu.Origin = recvMenu.Origin
+// 	} else {
+// 		// 그대로 저장
+// 		tempMenu.Origin = menu.Origin
+// 	}
+
+// 	// 메뉴 수량이 -1이면 주문 수량이 없음
+// 	if recvMenu.Quantity == -1 {
+// 		tempMenu.Quantity = -1
+// 	} else if recvMenu.Quantity == 0 {
+// 		// 메뉴 수량이 0이면 client에게 값을 받지 않은 것이기 때문에 기본 값을 넣는다.
+// 		tempMenu.Quantity = menu.Quantity
+// 	} else if recvMenu.Quantity < -1 {
+// 		// 주문 수량에 값이 있으면 해당 값을 넣는다.
+// 		tempMenu.Quantity = menu.Quantity
+// 	} else {
+// 		tempMenu.Quantity = recvMenu.Quantity
+// 	}
+
+// 	// 가격을 받지 않으면 기존 값을 넣는다.
+// 	if recvMenu.Price == 0 {
+// 		tempMenu.Price = menu.Price
+// 	} else {
+// 		// 가격을 받으면 해당 값을 넣는다.
+// 		tempMenu.Price = recvMenu.Price
+// 	}
+
+// 	if recvMenu.Spicy == "" {
+// 		tempMenu.Spicy = menu.Spicy
+// 	} else if recvMenu.Spicy == "Spicy" {
+// 		tempMenu.Spicy = "Spicy"
+// 	} else if recvMenu.Spicy == "Very hot" {
+// 		tempMenu.Spicy = "Very hot"
+// 	} else {
+// 		tempMenu.Spicy = "Normal"
+// 	}
+
+// 	if err := p.md.UpdateMenu(tempMenu); err != nil {
+// 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"result": "ok",
+// 	})
+// 	c.Next()
+// }
 
 // // RegisterStore godoc
 // // @Summary call RegisterStore, return ok by json.

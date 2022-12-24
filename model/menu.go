@@ -34,7 +34,7 @@ type Menu struct {
 }
 
 func (m *Model) CreateMenu(menu Menu) error {
-	logger.Debug("seller > CreateMenu")
+	logger.Debug("menu > CreateMenu")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -46,7 +46,7 @@ func (m *Model) CreateMenu(menu Menu) error {
 }
 
 func (m *Model) GetOneMenu(name string) (Menu, error) {
-
+	logger.Debug("menu > GetOneMenu")
 	opts := []*options.FindOneOptions{}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -63,5 +63,38 @@ func (m *Model) GetOneMenu(name string) (Menu, error) {
 		fmt.Println(sMenu, err)
 		return sMenu, nil
 	}
+}
+
+func (m *Model) DeleteMenu(smenu string) error {
+	logger.Debug("menu > DeleteMenu")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"name": smenu}
+	if res, err := m.collectionMenu.DeleteOne(ctx, filter); res.DeletedCount <= 0 {
+		return fmt.Errorf("could not delete, not found menu %s", smenu)
+	} else if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Model) UpdateMenu(menu Menu) error {
+	logger.Debug("menu > UpdateMenu")
+	filter := bson.M{"name": menu.Name}
+	update := bson.M{
+		"$set": bson.M{
+			"origin":    menu.Origin,
+			"quantity":  menu.Quantity,
+			"price":     menu.Price,
+			"spiciness": menu.Spiciness,
+			"favorites": menu.Favorites,
+			"available": menu.Available,
+		},
+	}
+	if _, err := m.collectionMenu.UpdateOne(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
 
 }
