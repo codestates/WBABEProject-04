@@ -61,6 +61,7 @@ func (r *Router) Index() *gin.Engine {
 		order.DELETE("/menu/:menu", r.ct.DelMenu)
 		order.GET("/menu/:name", r.ct.GetMenuWithName)
 		order.GET("/menu", r.ct.GetMenu)
+		order.PUT("/menu", r.ct.UpdateMenu)
 	}
 
 	return e

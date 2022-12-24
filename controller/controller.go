@@ -4,6 +4,7 @@ import (
 	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"encoding/json"
+
 	"fmt"
 	"net/http"
 	"strconv"
@@ -23,14 +24,17 @@ func NewController(rep *model.Model) (*Controller, error) {
 func (p *Controller) RegisterMenu(c *gin.Context) {
 	logger.Debug("RegisterMenu")
 	name := c.PostForm("name")         // (필수)
-	order := c.PostForm("order")       // 주문 가능 여부 (Default: false)
+	order := c.PostForm("order")       // 주문 가능 여부 (Default: 불가능)
 	quantity := c.PostForm("quantity") // 주문가능 개수(Default: infinity)
 	origin := c.PostForm("origin")     // 원산지 (필수, Default: 국내산)
 	price := c.PostForm("price")       // 가격 (필수)
 	spicy := c.PostForm("spicy")       // 맵기 (Default: normal)
 
-	// 가격을 입력하지 않으면 0원 -> 무료로 생각
-	nPrice, err := strconv.Atoi(price)
+	var nPrice uint
+	tempPrice, err := strconv.Atoi(price)
+	if tempPrice < 0 {
+		nPrice = 0
+	}
 	if err != nil {
 		nPrice = 0
 	}
@@ -50,15 +54,15 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 		origin = "국내산"
 	}
 
-	// 주문 가능 여부 : (Default: false)
+	// 주문 불가능 여부 : (Default: 가능(false))
 	bOrder, err := strconv.ParseBool(order)
 	if err != nil {
 		bOrder = false
 	}
 
 	menu, _ := p.md.GetOneMenu("name", name)
-	fmt.Println("menu")
-	// 이미 등록된 메뉴가 있으면... 에러
+
+	// 이미 등록된 메뉴가 있으면
 	if menu != (model.Menu{}) {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "already resistery menu", nil)
 		return
@@ -171,5 +175,73 @@ func (p *Controller) GetMenu(c *gin.Context) {
 // @Description 등록된 메뉴 전체의 리스트를 가져올 수 있다.
 // @Router /order/menu [get]
 func (p *Controller) UpdateMenu(c *gin.Context) {
+	var recvMenu model.Menu
+	err := c.ShouldBindJSON(&recvMenu)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	var menu model.Menu
+	if menu, err = p.md.GetOneMenu("name", recvMenu.Name); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update db", err)
+		return
+	}
 
+	var tempMenu model.Menu
+	tempMenu.Name = menu.Name
+	// 주문 불가능 여부 (true : 주문 불가능)
+	if recvMenu.Order {
+		tempMenu.Order = true
+	} else {
+		tempMenu.Order = menu.Order
+	}
+
+	// 원산지가 비어있지 않으면
+	if recvMenu.Origin != "" {
+		// Client에게 받은 원산지 저장
+		tempMenu.Origin = recvMenu.Origin
+	} else {
+		// 그대로 저장
+		tempMenu.Origin = menu.Origin
+	}
+
+	// 메뉴 수량이 -1이면 주문 수량이 없음
+	if recvMenu.Quantity == -1 {
+		tempMenu.Quantity = -1
+	} else if recvMenu.Quantity == 0 {
+		// 메뉴 수량이 0이면 client에게 값을 받지 않은 것이기 때문에 기본 값을 넣는다.
+		tempMenu.Quantity = menu.Quantity
+	} else if recvMenu.Quantity < -1 {
+		// 주문 수량에 값이 있으면 해당 값을 넣는다.
+		tempMenu.Quantity = menu.Quantity
+	} else {
+		tempMenu.Quantity = recvMenu.Quantity
+	}
+
+	// 가격을 받지 않으면 기존 값을 넣는다.
+	if recvMenu.Price == 0 {
+		tempMenu.Price = menu.Price
+	} else {
+		// 가격을 받으면 해당 값을 넣는다.
+		tempMenu.Price = recvMenu.Price
+	}
+
+	if recvMenu.Spicy == "" {
+		tempMenu.Spicy = menu.Spicy
+	} else if recvMenu.Spicy == "Spicy" {
+		tempMenu.Spicy = "Spicy"
+	} else if recvMenu.Spicy == "Very hot" {
+		tempMenu.Spicy = "Very hot"
+	} else {
+		tempMenu.Spicy = "Normal"
+	}
+
+	if err := p.md.UpdateMenu(tempMenu); err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"result": "ok",
+	})
+	c.Next()
 }

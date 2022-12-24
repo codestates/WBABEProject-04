@@ -22,7 +22,7 @@ type Menu struct {
 	Order    bool   `json:"order" bson:"order"`       // 주문 가능 여부
 	Quantity int    `json:"quantity" bson:"quantity"` // 수량
 	Origin   string `json:"origin" bson:"origin"`     // 원산지
-	Price    int    `json:"price" bson:"price"`       // 가격
+	Price    uint   `json:"price" bson:"price"`       // 가격
 	Spicy    string `json:"spicy" bson:"spicy"`       // 맵기 정도
 }
 
@@ -38,6 +38,7 @@ func NewModel() (*Model, error) {
 		db := r.client.Database("go-ready")
 		r.collection = db.Collection("tPerson")
 	}
+
 	return r, nil
 }
 
@@ -109,4 +110,24 @@ func (m *Model) DeleteMenu(smenu string) error {
 		return err
 	}
 	return nil
+}
+
+func (m *Model) UpdateMenu(menu Menu) error {
+	fmt.Println("UpdateMenu : ", menu)
+	filter := bson.M{"name": menu.Name}
+	update := bson.M{
+		"$set": bson.M{
+			"order":    menu.Order,
+			"quantity": menu.Quantity,
+			"price":    menu.Price,
+			"spicy":    menu.Spicy,
+			"origin":   menu.Origin,
+		},
+	}
+	if _, err := m.collection.UpdateOne(context.Background(), filter, update); err != nil {
+		return err
+	}
+	fmt.Println(">>??")
+	return nil
+
 }
