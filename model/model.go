@@ -1,8 +1,10 @@
 package model
 
 import (
+	"WBABEProject-04/logger"
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -41,13 +43,13 @@ func NewModel() (*Model, error) {
 
 // 메뉴이름을 받아 메뉴를 가져온다.
 func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
+	logger.Debug("Model > GetOneMenu")
 	opts := []*options.FindOneOptions{}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var filter bson.M
 
-	// 체크해줄 필요가 있는가? -> 고민해보자
 	if flag == "name" {
 		filter = bson.M{"name": elem}
 	}
@@ -59,19 +61,44 @@ func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
 	}
 }
 
+func (m *Model) GetMenuList() []Menu {
+	logger.Debug("Model > GetMenuList")
+	fmt.Println("GetMenuList")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := m.collection.Find(ctx, bson.M{})
+	if err != nil {
+		panic(err)
+	}
+
+	var menus []Menu
+	if err = cursor.All(ctx, &menus); err != nil {
+		panic(err)
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	return menus
+}
+
 // 메뉴를 생성한다.
 func (m *Model) CreateMenu(menus Menu) error {
+	logger.Debug("Model > CreateMenu")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if _, err := m.collection.InsertOne(ctx, menus); err != nil {
-		fmt.Println("fail insert new menu")
+		log.Println("fail insert new menu")
 		return fmt.Errorf("fail, insert")
 	}
 	return nil
 }
 
 func (m *Model) DeleteMenu(smenu string) error {
+	logger.Debug("Model > DeleteMenu")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

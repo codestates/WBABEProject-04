@@ -2,10 +2,13 @@ package router
 
 import (
 	"WBABEProject-04/controller"
+	"WBABEProject-04/docs"
 	"WBABEProject-04/logger"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	swgFiles "github.com/swaggo/files"
+	ginSwg "github.com/swaggo/gin-swagger"
 )
 
 type Router struct {
@@ -48,14 +51,16 @@ func (r *Router) Index() *gin.Engine {
 	e.Use(logger.GinLogger())
 	e.Use(logger.GinRecovery(true))
 	e.Use(CORS())
-
+	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
+	docs.SwaggerInfo.Host = "localhost" //swagger 정보 등록
 	logger.Info("start server")
 	order := e.Group("order", liteAuth())
 	{
 		// 메뉴 등록
 		order.POST("/menu", r.ct.RegisterMenu)
 		order.DELETE("/menu/:menu", r.ct.DelMenu)
-
+		order.GET("/menu/:name", r.ct.GetMenuWithName)
+		order.GET("/menu", r.ct.GetMenu)
 	}
 
 	return e

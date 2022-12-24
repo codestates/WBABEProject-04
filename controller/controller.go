@@ -16,10 +16,12 @@ type Controller struct {
 }
 
 func NewController(rep *model.Model) (*Controller, error) {
+
 	r := &Controller{md: rep}
 	return r, nil
 }
 func (p *Controller) RegisterMenu(c *gin.Context) {
+	logger.Debug("RegisterMenu")
 	name := c.PostForm("name")         // (필수)
 	order := c.PostForm("order")       // 주문 가능 여부 (Default: false)
 	quantity := c.PostForm("quantity") // 주문가능 개수(Default: infinity)
@@ -27,7 +29,6 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 	price := c.PostForm("price")       // 가격 (필수)
 	spicy := c.PostForm("spicy")       // 맵기 (Default: normal)
 
-	logger.Debug("RegisterMenu")
 	// 가격을 입력하지 않으면 0원 -> 무료로 생각
 	nPrice, err := strconv.Atoi(price)
 	if err != nil {
@@ -79,6 +80,7 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 
 // 에러 처리 함수
 func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err ...interface{}) {
+	logger.Debug("RespError")
 	bytes, _ := json.Marshal(body)
 	// 사용자에게 전달받은 Path, 전달받은 body, 상태코드, err 메시지
 	fmt.Println("Request error", "path", c.FullPath(), "body", bytes, "status", status, "error", err)
@@ -97,9 +99,14 @@ func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err
 	})
 	c.Abort()
 }
+
+// DelMenu godoc
+// @Summary call DelMenu, return ok by json.
+// @Description 메뉴의 이름을 파라미터로 받아 해당 메뉴를 삭제하는 기능
+// @Router /order/menu/:name [delete]
 func (p *Controller) DelMenu(c *gin.Context) {
+	logger.Debug("DelMenu")
 	smenu := c.Param("menu")
-	fmt.Println("이건 뭘까?", smenu)
 	if len(smenu) <= 0 {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", nil)
 		return
@@ -120,4 +127,49 @@ func (p *Controller) DelMenu(c *gin.Context) {
 		"result": "ok",
 	})
 	c.Next()
+}
+
+// GetMenuWithName godoc
+// @Summary call GetMenuWithName, return ok by json.
+// @Description 메뉴의 이름을 파라미터로 받아 해당 메뉴의 정보를 가져오는 기능
+// @Router /order/menu/:name [get]
+func (p *Controller) GetMenuWithName(c *gin.Context) {
+	logger.Debug("GetMenuWithName")
+	sName := c.Param("name")
+	if len(sName) <= 0 {
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		c.Abort()
+		return
+	}
+	if per, err := p.md.GetOneMenu("name", sName); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "fail",
+			"body": err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"res":  "ok",
+			"body": per,
+		})
+	}
+}
+
+// GetMenu godoc
+// @Summary call GetMenu, return ok by json.
+// @Description 등록된 메뉴 전체의 리스트를 가져올 수 있다.
+// @Router /order/menu [get]
+func (p *Controller) GetMenu(c *gin.Context) {
+	result := p.md.GetMenuList()
+	c.JSON(http.StatusOK, gin.H{
+		"res":  "ok",
+		"data": result,
+	})
+}
+
+// GetMenu godoc
+// @Summary call GetMenu, return ok by json.
+// @Description 등록된 메뉴 전체의 리스트를 가져올 수 있다.
+// @Router /order/menu [get]
+func (p *Controller) UpdateMenu(c *gin.Context) {
+
 }
