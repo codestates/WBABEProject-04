@@ -22,7 +22,7 @@ ___
 
 1. Clone the repo
   ```
-    git clone https:/.......
+    https://github.com/codestates/WBABEProject-04.git
   ```
 2. Install Package 
   ```
