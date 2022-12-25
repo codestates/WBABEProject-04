@@ -62,18 +62,16 @@ func (r *Router) Index() *gin.Engine {
 		// 메뉴 등록
 		menu.POST("", r.ct.RegisterMenu)
 		// 메뉴 삭제
-		menu.DELETE("/:menu", r.ct.DelMenu)
+		menu.DELETE("/:id", r.ct.DelMenu)
 		// 메뉴 수정
-		menu.PUT("", r.ct.UpdateMenu)
+		menu.PUT("/:id", r.ct.UpdateMenu)
 		// 주문 상태 조회(접수된 것으로 확인)
 		menu.GET("/orderlist", r.ct.GetOrderList)
-		// menu.GET("/:name", r.ct.GetMenuWithName)
-		// menu.GET("/", r.ct.GetMenu)
-		// menu.PUT("/", r.ct.UpdateMenu)
+
 	}
 	order := e.Group("menu/order", liteAuth())
 	{
-		// order.GET("/:name", r.ct.GetMenuWithName)
+		// 주문이 가능한지 확인
 		order.POST("/check", r.ct.CheckMenu)
 		order.POST("", r.ct.OrderMenu)
 	}

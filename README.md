@@ -19,7 +19,7 @@ ___
 - swagger
 - mongoDB
 
-## Getting Started(TEMP)
+## Getting Started
 
 ___
 

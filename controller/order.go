@@ -37,7 +37,7 @@ func (p *Controller) CheckMenu(c *gin.Context) {
 			return
 		}
 		for _, menu := range order.Menus {
-			menu, err := p.md.GetOneMenu(menu.Name)
+			menu, err := p.md.GetOneMenu(menu.MenuId)
 			// 메뉴가 없으면 리턴
 			if err != nil {
 				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail find db", err)
@@ -88,7 +88,7 @@ func (p *Controller) OrderMenu(c *gin.Context) {
 	orderList := customer.Orders
 	for _, order := range orderList {
 		for _, menu := range order.Menus {
-			temp, err := p.md.GetOneMenu(menu.Name)
+			temp, err := p.md.GetOneMenu(menu.MenuId)
 			if err != nil {
 				p.RespError(c, nil, 400, "fail find db", nil)
 				c.Abort()
