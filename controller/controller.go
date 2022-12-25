@@ -4,6 +4,7 @@ import (
 	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"encoding/json"
+	"net/http"
 
 	"fmt"
 
@@ -39,6 +40,19 @@ func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err
 		"error": err,
 	})
 	c.Abort()
+}
+
+func (p *Controller) GetMenuList(c *gin.Context) {
+	result, err := p.md.GetMenu()
+	if err != nil {
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		c.Abort()
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"res":  "ok",
+		"data": result,
+	})
 }
 
 // func (p *Controller) GetMenuWithStore(c *gin.Context) {

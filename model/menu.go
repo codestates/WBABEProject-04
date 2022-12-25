@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -22,15 +23,16 @@ const (
 )
 
 type Menu struct {
-	Name      string    `json:"name" bson:"name"`           // 메뉴 이름
-	Available bool      `json:"available" bson:"available"` // 주문 가능 여부
-	Quantity  int       `json:"quantity" bson:"quantity"`   // 수량
-	Grade     int       `json:"grade" bson:"grade"`
-	Origin    string    `json:"origin" bson:"origin"`       // 원산지
-	Price     uint      `json:"price" bson:"price"`         // 가격
-	Spiciness Spiciness `json:"spiciness" bson:"spiciness"` // 맵기 정도
-	Favorites bool      `json:"favorites" bson:"favorites"` // 추천 여부
-	Review    []Review  `json:"review,omitempty" bson:"review"`
+	MenuId    primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	Name      string             `json:"name" bson:"name"`           // 메뉴 이름
+	Available bool               `json:"available" bson:"available"` // 주문 가능 여부
+	Quantity  int                `json:"quantity" bson:"quantity"`   // 수량
+	Grade     int                `json:"grade" bson:"grade"`
+	Origin    string             `json:"origin" bson:"origin"`       // 원산지
+	Price     uint               `json:"price" bson:"price"`         // 가격
+	Spiciness Spiciness          `json:"spiciness" bson:"spiciness"` // 맵기 정도
+	Favorites bool               `json:"favorites" bson:"favorites"` // 추천 여부
+	Review    []Review           `json:"review,omitempty" bson:"review"`
 }
 
 func (m *Model) CreateMenu(menu Menu) error {
@@ -52,15 +54,13 @@ func (m *Model) GetOneMenu(name string) (Menu, error) {
 	defer cancel()
 
 	filter := bson.M{"name": name}
-	fmt.Println(name)
 
 	var sMenu Menu
 
 	if err := m.collectionMenu.FindOne(ctx, filter, opts...).Decode(&sMenu); err != nil {
-		fmt.Println(sMenu, err)
 		return sMenu, err
 	} else {
-		fmt.Println(sMenu, err)
+
 		return sMenu, nil
 	}
 }
@@ -96,5 +96,58 @@ func (m *Model) UpdateMenu(menu Menu) error {
 		return err
 	}
 	return nil
-
 }
+
+func (m *Model) UpdateOrderStatus(order Order, statusCode int) error {
+	logger.Debug("menu > UpdateMenu")
+	filter := bson.M{"orderid": order.OrderId}
+	update := bson.M{
+		"$set": bson.M{
+			"status": statusCode,
+		},
+	}
+	if _, err := m.collectionMenu.UpdateOne(context.Background(), filter, update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Model) GetMenu() ([]Menu, error) {
+	logger.Debug("menu > GetMenus")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var sMenu []Menu
+
+	cursor, err := m.collectionMenu.Find(ctx, bson.M{})
+	if err != nil {
+		return sMenu, err
+	} else {
+		if err = cursor.All(context.TODO(), &sMenu); err != nil {
+			return sMenu, err
+		}
+		fmt.Println(sMenu)
+		return sMenu, nil
+	}
+}
+
+// func (m *Model) GetMenus(menus []string) (Menu, error) {
+// 	logger.Debug("menu > GetMenus")
+// 	opts := options.Find().SetSort(bson.M{"name", 1})
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
+
+// 	filter := bson.M{"name": name}
+// 	fmt.Println(name)
+
+// 	var sMenu Menu
+
+// 	if err := m.collectionMenu.FindOne(ctx, filter, opts...).Decode(&sMenu); err != nil {
+// 		fmt.Println(sMenu, err)
+// 		return sMenu, err
+// 	} else {
+// 		fmt.Println(sMenu, err)
+// 		return sMenu, nil
+// 	}
+// }

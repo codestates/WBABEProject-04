@@ -1,9 +1,13 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Review struct {
-	Content  string   `json:"content" bson:"content"`
-	Menu     Menu     `json:"menu" bson:"menu"`
-	Customer Customer `json:"customer" bson:"customer"`
+	ReviewId primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	Content  string             `json:"content" bson:"content"`
+	Menu     Menu               `json:"menu" bson:"menu"`
+	Customer Customer           `json:"customer" bson:"customer"`
+	Grade    int                `json:"grade" bson:"grade"`
 }
 
 // // 메뉴이름을 받아 메뉴를 가져온다.

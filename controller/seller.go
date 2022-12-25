@@ -159,6 +159,37 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 	})
 }
 
+// 주문 상태 조회(접수된 것 중 접수, 조리중, 배달중, 배달완료 조회가능)
+func (p *Controller) GetOrderList(c *gin.Context) {
+	var orderList []model.Order
+	orderList, err := p.md.GetOrders()
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	fmt.Println(orderList)
+}
+
+// 주문 상태 변경(접수된 것을 조리중, 배달중, 배달완료)
+func (p *Controller) UpdateOrderStatus(c *gin.Context) {
+
+	// 상태 변경하려는 주문 가져오기(접수된 것 이상으로)
+	orderList, err := p.md.GetOrders()
+	if err != nil {
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "parameter not found", err)
+		return
+	}
+	fmt.Println(orderList)
+
+	// 가져온 주문 id 값을 통해 상태 값 변경 (접수 이상으로 진행된 것)
+
+	// orderList, err := p.md.UpdateStatus()
+	// if err != nil {
+	// 	return
+	// }
+	// fmt.Println(orderList)
+}
+
 // // GetMenu godoc
 // // @Summary call GetMenu, return ok by json.
 // // @Description 등록된 메뉴 전체의 리스트를 가져올 수 있다.
