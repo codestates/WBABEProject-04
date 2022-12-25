@@ -3,6 +3,13 @@
 ___
 프로젝트에 대한 설명
 
+### Database
+![KakaoTalk_Photo_2022-12-25-16-52-13](https://user-images.githubusercontent.com/20445415/209460804-ec8e9781-81d8-4787-9816-d22df963d993.png)
+
+### UML
+![KakaoTalk_Photo_2022-12-25-16-52-13](https://user-images.githubusercontent.com/20445415/209460814-c017e089-2871-4e77-8738-edfc441140d1.png)
+
+
 ## Stack(TEMP)
 ___
 - go
