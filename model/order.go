@@ -58,7 +58,7 @@ func (m *Model) GetOrders() ([]Order, error) {
 }
 
 func (m *Model) UpdateStatus() ([]Order, error) {
-	logger.Debug("order > GetStatus")
+	logger.Debug("order > UpdateStatus")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

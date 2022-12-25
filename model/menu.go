@@ -36,8 +36,8 @@ type Menu struct {
 }
 
 func (m *Model) CreateMenu(menu Menu) error {
-	menu.MenuId = primitive.NewObjectID()
 	logger.Debug("menu > CreateMenu")
+	menu.MenuId = primitive.NewObjectID()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -118,7 +118,7 @@ func (m *Model) UpdateMenu(menu Menu) error {
 }
 
 func (m *Model) UpdateOrderStatus(order Order, statusCode int) error {
-	logger.Debug("menu > UpdateMenu")
+	logger.Debug("menu > UpdateOrderStatus")
 	filter := bson.M{"orderid": order.OrderId}
 	update := bson.M{
 		"$set": bson.M{
@@ -132,7 +132,7 @@ func (m *Model) UpdateOrderStatus(order Order, statusCode int) error {
 }
 
 func (m *Model) GetMenu() ([]Menu, error) {
-	logger.Debug("menu > GetMenus")
+	logger.Debug("menu > GetMenu")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

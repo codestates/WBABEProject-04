@@ -61,8 +61,8 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 
 // DelMenu godoc
 // @Summary call DelMenu, return ok by json.
-// @Description 메뉴의 이름을 파라미터로 받아 해당 메뉴를 삭제하는 기능
-// @Router /order/menu/:name [delete]
+// @Description 메뉴의 아이디를 파라미터로 받아 해당 메뉴를 삭제하는 기능
+// @Router /order/menu/:id [delete]
 func (p *Controller) DelMenu(c *gin.Context) {
 	logger.Debug("DelMenu")
 	id := c.Param("id")
@@ -71,7 +71,7 @@ func (p *Controller) DelMenu(c *gin.Context) {
 
 	_, err = p.md.GetOneMenu(pId)
 	if err != nil {
-		p.RespError(c, nil, http.StatusUnprocessableEntity, "exist resistery menu", nil)
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "It is not a registered menu", nil)
 		return
 	}
 
@@ -86,16 +86,16 @@ func (p *Controller) DelMenu(c *gin.Context) {
 	c.Next()
 }
 
-// // UpdateMenu godoc
-// // @Summary call UpdateMenu, return ok by json.
-// // @Description 기존 메뉴의 정보를 변경할 수 있다.
-// // @Router /menu [post]
+// UpdateMenu godoc
+// @Summary call UpdateMenu, return ok by json.
+// @Description 메뉴의 아이디를 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.
+// @Router /menu/:id [post]
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	id := c.Param("id")
 	var recvMenu model.Menu
 	err := c.ShouldBindJSON(&recvMenu)
 	if err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		p.RespError(c, nil, 400, "fail, Please enter your json correctly", nil)
 		c.Abort()
 		return
 	}
