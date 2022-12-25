@@ -57,13 +57,13 @@ ___
 - 메뉴 삭제(DELETE) : 메뉴의 id값을 파라미터로 받아 삭제하는 기능
 
   ```
-    /menu/:menu
+    /menu/:id
   ```
 
 - 메뉴 수정(PUT)
 
   ```
-    /menu
+    /menu/:id
   ```
 
 - 메뉴 상태 조회(GET)
