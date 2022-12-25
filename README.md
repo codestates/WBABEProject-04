@@ -1,6 +1,5 @@
 
 ## About The Project
-
 ___
 
 ### Database
@@ -39,7 +38,6 @@ ___
 ## API List
 
 - 등록된 메뉴 리스트 가져오기(GET)
-
   ```
     /menu
   ```
@@ -84,4 +82,4 @@ ___
 
 - email: [abnormal5626@gmail.com]()
 - Project Link: [프로젝트 링크](https://github.com/codestates/WBABEProject-04)
--
+- 
