@@ -4,7 +4,8 @@ ___
 
 ### Database
 
-![KakaoTalk_Photo_2022-12-25-16-52-13](https://user-images.githubusercontent.com/20445415/209460804-ec8e9781-81d8-4787-9816-d22df963d993.png)
+![Project 3](https://user-images.githubusercontent.com/20445415/209470544-e569d5d7-e320-4b81-bf81-bf909feb2889.png)
+
 
 ### UML
 
