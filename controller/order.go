@@ -28,6 +28,7 @@ func (p *Controller) CheckMenu(c *gin.Context) {
 	anable := []anableToOrder{}
 	// 주문 하려는 메뉴가 있는지 확인
 	orderList := customer.Orders
+	// 가독성을 위해 Depth를 낮출 수 있을까요?
 	// var menus []model.Menu
 	for _, order := range orderList {
 		// 해당 주문을 접수중으로 업데이트

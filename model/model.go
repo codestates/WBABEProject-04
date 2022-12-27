@@ -18,6 +18,7 @@ type Model struct {
 func NewModel() (*Model, error) {
 	r := &Model{}
 	var err error
+	//URL과 같은 Acronym은 대문자를 사용합니다.
 	mgUrl := "mongodb://127.0.0.1:27017"
 	if r.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mgUrl)); err != nil {
 		return nil, err

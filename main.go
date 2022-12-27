@@ -60,6 +60,7 @@ func main() {
 			logger.Error("Server Shutdown:", err)
 		}
 
+		// single case라면 select를 사용하지 않아도 될 것 같습니다.
 		select {
 		case <-ctx.Done():
 			logger.Info("timeout of 5 seconds.")

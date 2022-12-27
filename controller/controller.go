@@ -42,6 +42,7 @@ func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err
 	c.Abort()
 }
 
+// 아직 Return을 구현하지 않으신 것 같습니다
 func (p *Controller) GetMenuList(c *gin.Context) {
 	result, err := p.md.GetMenu()
 	if err != nil {
