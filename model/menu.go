@@ -140,6 +140,7 @@ func (m *Model) GetMenu() ([]Menu, error) {
 	var sMenu []Menu
 
 	cursor, err := m.collectionMenu.Find(ctx, bson.M{})
+	// 아래의 코드를 더 깔끔하게 바꿀 수 있을 것 같습니다.
 	if err != nil {
 		return sMenu, err
 	} else {

@@ -28,6 +28,7 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 		return
 	}
 
+	// Name이나 Origin과 같은 필드는 == 0으로 처리할 수 있을 것 같아 보입니다.
 	if len(pMenu.Name) <= 0 {
 		p.RespError(c, nil, 400, "fail, input your name, please", nil)
 		c.Abort()
@@ -47,6 +48,7 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 		return
 	}
 
+	// 아래의 코드를 short syntax로 처리할 수 있을까요?
 	err := p.md.CreateMenu(pMenu)
 	if err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "cannot create.", err)
