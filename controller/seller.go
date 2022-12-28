@@ -15,7 +15,7 @@ import (
 
 // RegisterMenu godoc
 // @Summary call RegisterMenu, return ok by json.
-// @Description 메뉴를 등록한다.
+// @Description 메뉴의 정보를 JSON으로 입력받아 등록한다.
 // @Accept  json
 // @Produce  json
 // @Router /menu [post]
@@ -62,7 +62,7 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 // DelMenu godoc
 // @Summary call DelMenu, return ok by json.
 // @Description 메뉴의 아이디를 파라미터로 받아 해당 메뉴를 삭제하는 기능
-// @Router /order/menu/:id [delete]
+// @Router /menu/:id [delete]
 func (p *Controller) DelMenu(c *gin.Context) {
 	logger.Debug("DelMenu")
 	id := c.Param("id")
@@ -89,7 +89,7 @@ func (p *Controller) DelMenu(c *gin.Context) {
 // UpdateMenu godoc
 // @Summary call UpdateMenu, return ok by json.
 // @Description 메뉴의 아이디를 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.
-// @Router /menu/:id [post]
+// @Router /menu/:id [put]
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	id := c.Param("id")
 	var recvMenu model.Menu
@@ -181,11 +181,4 @@ func (p *Controller) UpdateOrderStatus(c *gin.Context) {
 	}
 	fmt.Println(orderList)
 
-	// 가져온 주문 id 값을 통해 상태 값 변경 (접수 이상으로 진행된 것)
-
-	// orderList, err := p.md.UpdateStatus()
-	// if err != nil {
-	// 	return
-	// }
-	// fmt.Println(orderList)
 }

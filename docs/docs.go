@@ -16,17 +16,33 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/order/menu": {
+        "/menu": {
             "get": {
-                "description": "등록된 메뉴 전체의 리스트를 가져올 수 있다.",
-                "summary": "call GetMenu, return ok by json.",
+                "description": "등록된 메뉴 리스트를 가져온다.",
+                "summary": "call GetMenuList, return ok by json.",
+                "responses": {}
+            },
+            "post": {
+                "description": "메뉴의 정보를 JSON으로 입력받아 등록한다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call RegisterMenu, return ok by json.",
                 "responses": {}
             }
         },
-        "/order/menu/:name": {
-            "get": {
-                "description": "메뉴의 이름을 파라미터로 받아 해당 메뉴의 정보를 가져오는 기능",
-                "summary": "call GetMenuWithName, return ok by json.",
+        "/menu/:id": {
+            "put": {
+                "description": "메뉴의 아이디를 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.",
+                "summary": "call UpdateMenu, return ok by json.",
+                "responses": {}
+            },
+            "delete": {
+                "description": "메뉴의 아이디를 파라미터로 받아 해당 메뉴를 삭제하는 기능",
+                "summary": "call DelMenu, return ok by json.",
                 "responses": {}
             }
         }
