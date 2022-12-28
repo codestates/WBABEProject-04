@@ -48,6 +48,7 @@ ___
   ```
     /menu
   ```
+![image](https://user-images.githubusercontent.com/20445415/209747862-65b2c942-196b-499e-900c-221e1116206f.png)
 
 ### 주문자
 
@@ -60,24 +61,22 @@ ___
   ```
     /menu
   ```
+![image](https://user-images.githubusercontent.com/20445415/209747510-f478139f-0b0e-4fa1-abe3-3504df589f7a.png)
 
 - 메뉴 삭제(DELETE) : 메뉴의 id값을 파라미터로 받아 삭제하는 기능
 
   ```
     /menu/:id
   ```
+![image](https://user-images.githubusercontent.com/20445415/209747832-512c097f-35ca-467e-aca9-f2292b6afe73.png)
 
 - 메뉴 수정(PUT)
 
   ```
     /menu/:id
   ```
+![image](https://user-images.githubusercontent.com/20445415/209747960-040a6e64-2d30-4bea-8b7b-a9ba5739c8ec.png)
 
-- 메뉴 상태 조회(GET)
-
-  ```
-    /orderlist
-  ```
 
 ## Roadmap
 
