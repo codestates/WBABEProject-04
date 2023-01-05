@@ -157,3 +157,27 @@ func (m *Model) GetSortedMenu(query QueryData) ([]Menu, error) {
 		return result, nil
 	}
 }
+func (m *Model) IncreaseMenuVolume(menu Menu) error {
+	opts := []*options.FindOneOptions{}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"name": menu.Name}
+	var sMenu Menu
+
+	if err := m.collectionMenu.FindOne(ctx, filter, opts...).Decode(&sMenu); err != nil {
+		return err
+	} else {
+		update := bson.M{
+			"$set": bson.M{
+				"count": sMenu.Count + 1,
+			},
+		}
+		if _, err := m.collectionMenu.UpdateOne(context.Background(), filter, update); err != nil {
+			return err
+		} else {
+			return nil
+		}
+	}
+}

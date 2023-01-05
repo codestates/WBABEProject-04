@@ -80,8 +80,9 @@ func (r *Router) Index() *gin.Engine {
 		// 메뉴를 정렬해서 가져온다.
 		order.GET("", r.ct.GetSortedMenu)
 		order.GET("/:customerID", r.ct.GetOrderInfo)
-		// 주문을 변경할 수 있다
-		// order.PUT("/:ordernumber", r.ct.UpdateOrder)
+
+		// 메뉴를 추가할 수 있다.
+		order.POST("/:ordernumber", r.ct.AddOrder)
 		// 과거 주문 내역을 가져올 수 있다.
 		order.GET("/history/:customerID", r.ct.GetOrderHistory)
 		// order.POST("", r.ct.OrderMenu)

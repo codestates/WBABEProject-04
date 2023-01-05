@@ -2,7 +2,7 @@ package controller
 
 import (
 	"WBABEProject-04/model"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -12,44 +12,84 @@ import (
 
 // 주문자
 
-// 주문을 변경할 수 있다.
-// 주문 상태가 조리중, 배달 중이면 불가능
-// 주문 번호를 파라미터로 받고 POST로 수정하기
-func (p *Controller) UpdateOrder(c *gin.Context) {
+func (p *Controller) AddOrder(c *gin.Context) {
+	// 메뉴추가
+	// 주문한 order ID와
+	// order의 post
 	sOrderNumber := c.Param("ordernumber")
-	fmt.Println(sOrderNumber)
-	var recvOrder *model.Order
+	var recvParam primitive.ObjectID
+	var err error
+	if recvParam, err = primitive.ObjectIDFromHex(sOrderNumber); err != nil {
+		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		return
+	}
 
-	err := c.ShouldBindJSON(&recvOrder)
+	var recvOrder model.Order
+	err = c.ShouldBindJSON(&recvOrder)
 	if err != nil {
 		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
 		c.Abort()
 		return
 	}
-
-	// 주문 받은 메뉴를 찾는다.
-	var user primitive.ObjectID
-	if user, err = primitive.ObjectIDFromHex(sOrderNumber); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+	tempOrder := model.Order{}
+	if tempOrder, err = p.md.GetOrderByID(recvParam); err != nil {
+		p.RespError(c, nil, 422, "fail, Not Found Order", err)
 		return
 	}
-	// 유저의 아이디를 기준으로 주문내역을 찾는다.
-	var orders []model.Order
-	if orders, err = p.md.GetOrdersByUserID(user); err != nil {
-		p.RespError(c, nil, 400, "Order history not found.", nil)
-		return
-	}
-	var recvMenus []model.Menu
-	for _, menu := range recvOrder.Menus {
-		recvMenus = append(recvMenus, menu)
-	}
 
-	for _, order := range orders {
-		if order.Status == 3 {
-			// 상태값이 조리중이 시작되지 않았으니 변경 가능
-			for _, recvmenu := range recvMenus {
-				p.md.UpdateOrder(recvmenu, order)
+	if tempOrder.Status == model.Cooking || tempOrder.Status == model.InDelivery || tempOrder.Status == model.CompleteDelivery {
+		newOrder := model.Order{}
+		newOrder.CustomerID = recvOrder.CustomerID
+
+		menus := []model.Menu{}
+		for _, menu := range recvOrder.Menus {
+			if tempmenu, err := p.md.GetOneMenu("name", menu.Name); err != nil {
+				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail find menu", err)
+				return
+			} else {
+				if err := p.md.IncreaseMenuVolume(menu); err != nil {
+					p.RespError(c, nil, http.StatusUnprocessableEntity, "fail increase menu volume", err)
+					return
+				}
+				menus = append(menus, tempmenu)
 			}
+		}
+		newOrder.Menus = menus
+		newOrder.Status = model.Accepting
+		newOrder.ID = primitive.NewObjectID()
+		if err := p.md.CreateOrder(newOrder); err != nil {
+			p.RespError(c, nil, 422, "fail, Not Found Param", err)
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"res":  "ok",
+				"Data": newOrder.ID,
+			})
+		}
+	} else {
+		menus := []model.Menu{}
+		for _, menu := range recvOrder.Menus {
+			if tempmenu, err := p.md.GetOneMenu("name", menu.Name); err != nil {
+				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail find menu", err)
+				return
+			} else {
+				if err := p.md.IncreaseMenuVolume(menu); err != nil {
+					p.RespError(c, nil, http.StatusUnprocessableEntity, "fail increase menu volume", err)
+					return
+				}
+				menus = append(menus, tempmenu)
+			}
+		}
+		recvOrder.Menus = menus
+		tempOrder.Menus = append(tempOrder.Menus, recvOrder.Menus...)
+		if err = p.md.UpdateOrder(tempOrder, recvParam); err != nil {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update order", err)
+			return
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"res":  "ok",
+				"Data": recvParam,
+			})
 		}
 	}
 }
@@ -81,6 +121,10 @@ func (p *Controller) OrderMenu(c *gin.Context) {
 				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail find menu", err)
 				return
 			} else {
+				if err := p.md.IncreaseMenuVolume(menu); err != nil {
+					p.RespError(c, nil, http.StatusUnprocessableEntity, "fail increase menu volume", err)
+					return
+				}
 				menus = append(menus, tempmenu)
 			}
 		}
@@ -233,7 +277,23 @@ func (p *Controller) WriteReview(c *gin.Context) {
 				p.RespError(c, nil, 200, "Your order has not been completed.", err)
 				return
 			}
-			p.md.CreateReview(recvReview)
+			resultReview := model.Review{}
+			resultReview.MenuId = recvReview.MenuId
+			resultReview.Content = recvReview.Content
+			resultReview.CustomerID = recvReview.CustomerID
+			resultReview.Grade = recvReview.Grade
+			resultReview.ID = primitive.NewObjectID()
+			resultReview.CreatedAt = time.Now()
+			resultReview.IsWrite = true
+			if err = p.md.CreateReview(resultReview); err != nil {
+				log.Println("fail insert review")
+				p.RespError(c, nil, 422, "fail, create review", err)
+				return
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"res": "ok",
+				})
+			}
 		}
 	}
 }

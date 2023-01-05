@@ -25,15 +25,14 @@ func (m *Model) CreateReview(review Review) error {
 	logger.Debug("review > CreateReview")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	review.ID = primitive.NewObjectID()
-	review.CreatedAt = time.Now()
-	review.IsWrite = true
+
 	if _, err := m.collectionReview.InsertOne(ctx, &review); err != nil {
 		log.Println("fail insert new review")
 		return fmt.Errorf("fail, insert review")
 	}
 	return nil
 }
+
 func (m *Model) GetReviewByMenuID(menuID primitive.ObjectID) ([]Review, error) {
 	logger.Debug("review > GetReviewByMenuID")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

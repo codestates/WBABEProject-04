@@ -162,9 +162,20 @@ func (m *Model) CreateCustomer(customer Customer) error {
 	return nil
 }
 
-func (m *Model) UpdateOrder(menu Menu, order Order) error {
+func (m *Model) UpdateOrder(order Order, orderID primitive.ObjectID) error {
 	logger.Debug("menu > UpdateOrder")
-	return nil
+	filter := bson.M{"_id": order.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"menus": order.Menus,
+		},
+	}
+	if _, err := m.collectionOrder.UpdateOne(context.Background(), filter, update); err != nil {
+		log.Println("fail, update order statuscode")
+		return fmt.Errorf("fail, update order statuscode")
+	} else {
+		return nil
+	}
 }
 
 func (m *Model) UpdateOrderStatus(order Order, statusCode int) error {
