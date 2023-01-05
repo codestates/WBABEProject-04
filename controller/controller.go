@@ -47,7 +47,7 @@ func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err
 // @Description 등록된 메뉴 리스트를 가져온다.
 // @Router /menu [get]
 func (p *Controller) GetMenuList(c *gin.Context) {
-	result, err := p.md.GetMenu()
+	result, err := p.md.GetMenu("menu")
 	if err != nil {
 		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
 		c.Abort()

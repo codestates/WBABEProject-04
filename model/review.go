@@ -1,103 +1,52 @@
 package model
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"WBABEProject-04/logger"
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Review struct {
-	ReviewId primitive.ObjectID `bson:"_id" json:"id,omitempty"`
-	Content  string             `json:"content" bson:"content"`
-	Menu     Menu               `json:"menu" bson:"menu"`
-	Customer Customer           `json:"customer" bson:"customer"`
-	Grade    int                `json:"grade" bson:"grade"`
+	ID         primitive.ObjectID `bson:"_id" json:"id"`
+	Content    string             `json:"content" bson:"content"`
+	MenuId     primitive.ObjectID `json:"menuid" bson:"menuid"`
+	CustomerID primitive.ObjectID `json:"customerid,omitempty" bson:"customerid"`
+	Grade      int                `json:"grade" bson:"grade"`
+	IsWrite    bool               `json:"iswrite,omitempty" bson:"iswrite"`
+	CreatedAt  time.Time          `json:"createdat,omitempty" bson:"createdat"`
 }
 
-// // 메뉴이름을 받아 메뉴를 가져온다.
-// func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
-
-// 	logger.Debug("seller > GetOneMenu")
-// 	opts := []*options.FindOneOptions{}
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	var filter bson.M
-
-// 	if flag == "name" {
-// 		filter = bson.M{"name": elem}
-// 	}
-// 	var menus Menu
-// 	if err := m.collectionSeller.FindOne(ctx, filter, opts...).Decode(&menus); err != nil {
-// 		return menus, err
-// 	} else {
-// 		return menus, nil
-// 	}
-// }
-
-// // 메뉴를 생성한다.
-// func (m *Model) CreateMenu(menus Menu) error {
-// 	logger.Debug("seller > CreateMenu")
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	if _, err := m.collectionSeller.InsertOne(ctx, menus); err != nil {
-// 		log.Println("fail insert new menu")
-// 		return fmt.Errorf("fail, insert")
-// 	}
-// 	return nil
-// }
-
-// func (m *Model) DeleteMenu(smenu string) error {
-// 	logger.Debug("seller > DeleteMenu")
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	filter := bson.M{"name": smenu}
-// 	if res, err := m.collectionSeller.DeleteOne(ctx, filter); res.DeletedCount <= 0 {
-// 		return fmt.Errorf("could not delete, not found menu %s", smenu)
-// 	} else if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func (m *Model) UpdateMenu(menu Menu) error {
-// 	fmt.Println("UpdateMenu : ", menu)
-// 	filter := bson.M{"name": menu.Name}
-// 	update := bson.M{
-// 		"$set": bson.M{
-// 			"order":    menu.Order,
-// 			"quantity": menu.Quantity,
-// 			"price":    menu.Price,
-// 			"spicy":    menu.Spicy,
-// 			"origin":   menu.Origin,
-// 		},
-// 	}
-// 	if _, err := m.collectionSeller.UpdateOne(context.Background(), filter, update); err != nil {
-// 		return err
-// 	}
-// 	fmt.Println(">>??")
-// 	return nil
-
-// }
-
-// func (m *Model) GetMenuList() []Menu {
-
-// 	logger.Debug("seller > GetMenuList")
-// 	fmt.Println("GetMenuList")
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	cursor, err := m.collectionSeller.Find(ctx, bson.M{})
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	var menus []Menu
-// 	if err = cursor.All(ctx, &menus); err != nil {
-// 		panic(err)
-// 	}
-
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return menus
-// }
+func (m *Model) CreateReview(review Review) error {
+	logger.Debug("review > CreateReview")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	review.ID = primitive.NewObjectID()
+	review.CreatedAt = time.Now()
+	review.IsWrite = true
+	if _, err := m.collectionReview.InsertOne(ctx, &review); err != nil {
+		log.Println("fail insert new review")
+		return fmt.Errorf("fail, insert review")
+	}
+	return nil
+}
+func (m *Model) GetReviewByMenuID(menuID primitive.ObjectID) ([]Review, error) {
+	logger.Debug("review > GetReviewByMenuID")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	filter := bson.M{"menuid": menuID}
+	var reviews []Review
+	if cursor, err := m.collectionReview.Find(ctx, filter); err != nil {
+		return reviews, err
+	} else {
+		if err = cursor.All(context.TODO(), &reviews); err != nil {
+			log.Println("fail find review")
+			return reviews, fmt.Errorf("fail, find review")
+		}
+		return reviews, nil
+	}
+}

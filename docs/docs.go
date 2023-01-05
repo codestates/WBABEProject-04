@@ -16,6 +16,19 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/history/review/:orderNumber": {
+            "post": {
+                "description": "주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call WriteReview, return ok by json.",
+                "responses": {}
+            }
+        },
         "/menu": {
             "get": {
                 "description": "등록된 메뉴 리스트를 가져온다.",
@@ -23,26 +36,191 @@ const docTemplate = `{
                 "responses": {}
             },
             "post": {
-                "description": "메뉴의 정보를 JSON으로 입력받아 등록한다.",
+                "description": "JSON형태로 데이터를 전달받아 메뉴를 생성합니다.",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
+                "summary": "메뉴를 등록합니다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, enter a menu name, please",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "already resistery menu",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/:menu": {
+            "put": {
+                "description": "메뉴의 이름을 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.",
+                "consumes": [
                     "application/json"
                 ],
-                "summary": "call RegisterMenu, return ok by json.",
+                "summary": "메뉴의 정보를 수정합니다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "메뉴를 삭제하기 위함",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Please enter your json correctly",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "The menu cannot be edited.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/:name": {
+            "get": {
+                "description": "메뉴의 이름을 파라미터로 받고 JSON 형태로 해당 메뉴에 대한 정보를 얻을 수 있다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "한가지 메뉴에 대한 정보를 얻을 수 있다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "It is not a registered menu",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "arameter 형태로 메뉴 이름을 받아 해당 메뉴를 삭제합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "메뉴를 삭제합니다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "메뉴를 삭제하기 위함",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "It is not a registered menu",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail delete db",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/order": {
+            "get": {
+                "description": "주문 상태가 \"접수완료\"인 메뉴들을 확인할 수 있다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "접수 완료된 주문들의 리스트를 확인할 수 있다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "parameter not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "주문 상태가 \"접수완료\"인 메뉴들의 상태를 변경할 수 있다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "주문들의 상태를 변경할 수 있다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "You entered an incorrect status code.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail update status",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order": {
+            "post": {
+                "description": "주문을 요청한다. 요청이 완료되면 주문 번호를 json 형태로 리턴한다.",
+                "summary": "call OrderMenu, return ok by json.",
                 "responses": {}
             }
         },
-        "/menu/:id": {
-            "put": {
-                "description": "메뉴의 아이디를 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.",
-                "summary": "call UpdateMenu, return ok by json.",
-                "responses": {}
-            },
-            "delete": {
-                "description": "메뉴의 아이디를 파라미터로 받아 해당 메뉴를 삭제하는 기능",
-                "summary": "call DelMenu, return ok by json.",
+        "/order/favorites": {
+            "get": {
+                "description": "판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있다.",
+                "summary": "call GetFavorites, return ok by json.",
                 "responses": {}
             }
         }

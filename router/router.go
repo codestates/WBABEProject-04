@@ -52,7 +52,7 @@ func (r *Router) Index() *gin.Engine {
 	e.Use(logger.GinRecovery(true))
 	e.Use(CORS())
 	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
-	docs.SwaggerInfo.Host = "localhost" //swagger 정보 등록
+	docs.SwaggerInfo.Host = "localhost"
 	logger.Info("start server")
 
 	menu := e.Group("/menu", liteAuth())
@@ -62,19 +62,33 @@ func (r *Router) Index() *gin.Engine {
 		// 메뉴 등록
 		menu.POST("", r.ct.RegisterMenu)
 		// 메뉴 삭제
-		menu.DELETE("/:id", r.ct.DelMenu)
+		menu.DELETE("/:menu", r.ct.DeleteMenu)
 		// 메뉴 수정
-		menu.PUT("/:id", r.ct.UpdateMenu)
-		// 주문 상태 조회(접수된 것으로 확인)
-		menu.GET("/orderlist", r.ct.GetOrderList)
+		menu.PUT("/:menu", r.ct.UpdateMenu)
+		// 한가지 메뉴를 가져온다
+		menu.GET("/:menu", r.ct.GetOneMenu)
+		// 주문 요청 들어온 내역을 보여준다.
+		menu.GET("/order", r.ct.GetOrderList)
+		// 주문 요청으로 들어온 내역의 상태를 변경한다.
+		menu.PUT("/order", r.ct.UpdateOrderStatus)
 
 	}
-	order := e.Group("menu/order", liteAuth())
+	order := e.Group("/order", liteAuth())
 	{
-		// 주문이 가능한지 확인
-		order.POST("/check", r.ct.CheckMenu)
+		// 주문 요청
 		order.POST("", r.ct.OrderMenu)
-	}
+		// 메뉴를 정렬해서 가져온다.
+		order.GET("", r.ct.GetSortedMenu)
+		order.GET("/:customerID", r.ct.GetOrderInfo)
+		// 주문을 변경할 수 있다
+		// order.PUT("/:ordernumber", r.ct.UpdateOrder)
+		// 과거 주문 내역을 가져올 수 있다.
+		order.GET("/history/:customerID", r.ct.GetOrderHistory)
+		// order.POST("", r.ct.OrderMenu)
+		// 과거 주문 내역에 있는 메뉴의 평점을 작성할 수 있다.
+		order.POST("/history/review/:orderNumber", r.ct.WriteReview)
+		order.GET("/history/review/:menuID", r.ct.GetReview)
 
+	}
 	return e
 }
