@@ -15,20 +15,12 @@ import (
 type Status int
 
 const (
-	// 접수 중
 	Accepting = 1 + iota
-	// 접수 취소
 	Cancellation
-	// 접수
 	Receipt
-
-	// 조리 중
 	Cooking
-	// 추가 주문
 	AdditionalOrder
-	// 배달 중
 	InDelivery
-	// 배달완료
 	CompleteDelivery
 )
 
@@ -55,10 +47,8 @@ func (m *Model) GetOrderStatusByOrderID(orderID primitive.ObjectID) (int, error)
 	logger.Debug("order > GetOrderStatusByOrderID")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	filter := bson.M{"_id": orderID}
 	order := Order{}
-
 	if err := m.collectionOrder.FindOne(ctx, filter).Decode(&order); err != nil {
 		return int(order.Status), err
 	} else {
@@ -128,8 +118,7 @@ func (m *Model) GetOrders() ([]Order, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var orders []Order
-	cursor, err := m.collectionOrder.Find(ctx, bson.M{"status": bson.M{"$eq": 3}})
-	if err != nil {
+	if cursor, err := m.collectionOrder.Find(ctx, bson.M{"status": bson.M{"$eq": 3}}); err != nil {
 		return orders, fmt.Errorf("fail, find order")
 	} else {
 		if err = cursor.All(context.TODO(), &orders); err != nil {
@@ -163,7 +152,7 @@ func (m *Model) CreateCustomer(customer Customer) error {
 }
 
 func (m *Model) UpdateOrder(order Order, orderID primitive.ObjectID) error {
-	logger.Debug("menu > UpdateOrder")
+	logger.Debug("order > UpdateOrder")
 	filter := bson.M{"_id": order.ID}
 	update := bson.M{
 		"$set": bson.M{
@@ -179,7 +168,7 @@ func (m *Model) UpdateOrder(order Order, orderID primitive.ObjectID) error {
 }
 
 func (m *Model) UpdateOrderStatus(order Order, statusCode int) error {
-	logger.Debug("menu > UpdateOrderStatus")
+	logger.Debug("order > UpdateOrderStatus")
 	filter := bson.M{"_id": order.ID}
 	update := bson.M{
 		"$set": bson.M{

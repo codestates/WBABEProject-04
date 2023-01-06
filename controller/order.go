@@ -296,7 +296,7 @@ func (p *Controller) GetOrderInfo(c *gin.Context) {
 }
 
 // WriteReview godoc
-// @Summary call WriteReview, return ok by json.
+// @Summary 리뷰를 작성할 수 있습니다.
 // @Description 주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있다.
 // @name WriteReview
 // @Accept  json

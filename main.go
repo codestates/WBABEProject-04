@@ -26,7 +26,6 @@ func main() {
 	var configFlag = flag.String("config", "./conf/config.toml", "toml file to use for configuration")
 	flag.Parse()
 	cf := conf.NewConfig(*configFlag)
-	// 로그 초기화
 	if err := logger.InitLogger(cf); err != nil {
 		fmt.Printf("init logger failed, err:%v\n", err)
 		return
@@ -53,13 +52,11 @@ func main() {
 		<-quit
 
 		logger.Warn("Shutdown Server ...")
-
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := mapi.Shutdown(ctx); err != nil {
 			logger.Error("Server Shutdown:", err)
 		}
-
 		select {
 		case <-ctx.Done():
 			logger.Info("timeout of 5 seconds.")

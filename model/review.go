@@ -25,7 +25,6 @@ func (m *Model) CreateReview(review Review) error {
 	logger.Debug("review > CreateReview")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	if _, err := m.collectionReview.InsertOne(ctx, &review); err != nil {
 		log.Println("fail insert new review")
 		return fmt.Errorf("fail, insert review")

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"WBABEProject-04/logger"
 	"context"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,13 +17,13 @@ type Model struct {
 }
 
 func NewModel() (*Model, error) {
+	logger.Debug("NewModel")
 	r := &Model{}
 	var err error
 	mgUrl := "mongodb://127.0.0.1:27017"
 	if r.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mgUrl)); err != nil {
 		return nil, err
 	} else if err := r.client.Ping(context.Background(), nil); err != nil {
-
 		return nil, err
 	} else {
 		db := r.client.Database("project")

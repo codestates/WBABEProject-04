@@ -19,8 +19,8 @@
         },
         "/menu": {
             "get": {
-                "description": "등록된 메뉴 리스트를 가져온다.",
-                "summary": "call GetMenuList, return ok by json.",
+                "description": "등록된 메뉴를 JSON 형태로 가져옵니다.",
+                "summary": "등록된 메뉴 리스트를 가져옵니다.",
                 "responses": {}
             },
             "post": {
@@ -199,17 +199,143 @@
             }
         },
         "/order": {
-            "post": {
-                "description": "주문을 요청한다. 요청이 완료되면 주문 번호를 json 형태로 리턴한다.",
-                "summary": "call OrderMenu, return ok by json.",
-                "responses": {}
-            }
-        },
-        "/order/favorites": {
             "get": {
                 "description": "판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있다.",
-                "summary": "call GetFavorites, return ok by json.",
-                "responses": {}
+                "summary": "메뉴 리스트 조회 및 정렬(추천/평점/주문수/최신)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "condition",
+                        "name": "grade",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "condition",
+                        "name": "createdat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "orderby",
+                        "name": "1",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "err message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail, Not Found Param",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "json 형태로 주문을 요청합니다. 요청이 완료되면 주문 번호를 json 형태로 리턴합니다.",
+                "summary": "주문자가 주문을 요청할 수 있습니다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Not Found Param",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail create customer",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/:orderid": {
+            "post": {
+                "description": "Parameter로 주문번호를 입력받고, JSON 형태로 추가하고자 하는 메뉴의 정보를 전달하면 메뉴를 추가할 수 있습니다. 배달 중일 경우 신규 주문으로 요청됩니다.",
+                "summary": "메뉴를 추가할 수 있습니다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "메뉴를 추가하기 위함",
+                        "name": "orderid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Not Found JSON",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "failm increase menu volume",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/:ordernumber": {
+            "put": {
+                "description": "paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보낸다.",
+                "summary": "메뉴를 변경할 수 있다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "메뉴를 변경하기 위함",
+                        "name": "orderid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "err message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail, Not Found Order",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     }

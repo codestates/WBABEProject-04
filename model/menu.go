@@ -47,10 +47,8 @@ func (m *Model) CreateMenu(menu Menu) error {
 	logger.Debug("menu > CreateMenu")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	menu.ID = primitive.NewObjectID()
 	menu.CreatedAt = time.Now()
-
 	if _, err := m.collectionMenu.InsertOne(ctx, &menu); err != nil {
 		log.Println("fail insert new menu")
 		return fmt.Errorf("fail, insert")
@@ -60,18 +58,14 @@ func (m *Model) CreateMenu(menu Menu) error {
 
 func (m *Model) GetOneMenu(flag, elem string) (Menu, error) {
 	logger.Debug("menu > GetOneMenu")
-
 	opts := []*options.FindOneOptions{}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	var filter bson.M
 	if flag == "name" {
 		filter = bson.M{"name": elem}
 	}
-
 	var sMenu Menu
-
 	if err := m.collectionMenu.FindOne(ctx, filter, opts...).Decode(&sMenu); err != nil {
 		return sMenu, err
 	} else {
@@ -83,7 +77,6 @@ func (m *Model) DeleteMenu(name string) error {
 	logger.Debug("menu > DeleteMenu")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	filter := bson.M{"name": name}
 	if res, err := m.collectionMenu.DeleteOne(ctx, filter); res.DeletedCount <= 0 {
 		return fmt.Errorf("could not delete, not found menu %s", name)
@@ -92,13 +85,8 @@ func (m *Model) DeleteMenu(name string) error {
 	}
 	return nil
 }
-func (m *Model) UpdateMenuGrade(grade int, menuName string) error {
-	// logger.Debug("menu > UpdateMenuGrade")
-	// filter := bson.M{"name": menuName}
-	return nil
-}
-func (m *Model) UpdateMenu(menu Menu, menuName string) error {
 
+func (m *Model) UpdateMenu(menu Menu, menuName string) error {
 	logger.Debug("menu > UpdateMenu")
 	filter := bson.M{"name": menuName}
 	update := bson.M{
@@ -138,6 +126,7 @@ func (m *Model) GetMenu(flag string) ([]Menu, error) {
 }
 
 func (m *Model) GetSortedMenu(query QueryData) ([]Menu, error) {
+	logger.Debug("menu > GetSortedMenu")
 	filter := bson.D{}
 	condition := bson.D{{query.Condition, query.OrderBy}}
 	opts := options.Find().SetSort(condition)
@@ -158,14 +147,12 @@ func (m *Model) GetSortedMenu(query QueryData) ([]Menu, error) {
 	}
 }
 func (m *Model) IncreaseMenuVolume(menu Menu) error {
+	logger.Debug("menu > IncreaseMenuVolume")
 	opts := []*options.FindOneOptions{}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	filter := bson.M{"name": menu.Name}
 	var sMenu Menu
-
 	if err := m.collectionMenu.FindOne(ctx, filter, opts...).Decode(&sMenu); err != nil {
 		return err
 	} else {
