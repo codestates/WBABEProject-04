@@ -78,7 +78,7 @@ const docTemplate = `{
         },
         "/menu/:menu": {
             "put": {
-                "description": "메뉴의 이름을 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.",
+                "description": "메뉴의 이름을 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있습니다.",
                 "consumes": [
                     "application/json"
                 ],
@@ -116,11 +116,11 @@ const docTemplate = `{
         },
         "/menu/:name": {
             "get": {
-                "description": "메뉴의 이름을 파라미터로 받고 JSON 형태로 해당 메뉴에 대한 정보를 얻을 수 있다.",
+                "description": "메뉴의 이름을 파라미터로 받고 JSON 형태로 해당 메뉴에 대한 정보를 얻을 수 있습니다.",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "한가지 메뉴에 대한 정보를 얻을 수 있다.",
+                "summary": "한가지 메뉴에 대한 정보를 얻을 수 있습니다.",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -175,11 +175,11 @@ const docTemplate = `{
         },
         "/menu/order": {
             "get": {
-                "description": "주문 상태가 \"접수완료\"인 메뉴들을 확인할 수 있다.",
+                "description": "주문 상태가 \"접수완료\"인 메뉴들을 확인할 수 있습니다.",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "접수 완료된 주문들의 리스트를 확인할 수 있다.",
+                "summary": "접수 완료된 주문들의 리스트를 확인할 수 있습니다.",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -196,11 +196,11 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "주문 상태가 \"접수완료\"인 메뉴들의 상태를 변경할 수 있다.",
+                "description": "주문 상태가 \"접수완료\"인 메뉴들의 상태를 변경할 수 있습니다.",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "주문들의 상태를 변경할 수 있다.",
+                "summary": "주문들의 상태를 변경할 수 있습니다.",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -225,8 +225,8 @@ const docTemplate = `{
         },
         "/order": {
             "get": {
-                "description": "판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있다.",
-                "summary": "메뉴 리스트 조회 및 정렬(추천/평점/주문수/최신)",
+                "description": "판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있습니다.",
+                "summary": "메뉴 리스트 조회 및 정렬(추천/평점/주문수/최신)을 할 수 있습니다.",
                 "parameters": [
                     {
                         "type": "string",
@@ -364,8 +364,8 @@ const docTemplate = `{
         },
         "/order/:ordernumber": {
             "put": {
-                "description": "paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보낸다.",
-                "summary": "메뉴를 변경할 수 있다.",
+                "description": "paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있습니다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보냅니다.",
+                "summary": "메뉴를 변경할 수 있습니다.",
                 "parameters": [
                     {
                         "type": "string",

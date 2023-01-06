@@ -144,8 +144,8 @@ func (p *Controller) OrderMenu(c *gin.Context) {
 }
 
 // UpdateOrder godoc
-// @Summary 메뉴를 변경할 수 있다.
-// @Description paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보낸다.
+// @Summary 메뉴를 변경할 수 있습니다.
+// @Description paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있습니다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보냅니다.
 // @Param orderid path string true "메뉴를 변경하기 위함"
 // @Success 200 {string} string "ok"
 // @Failure 400 {string} string "fail, Not Found Param"
@@ -202,8 +202,8 @@ func (p *Controller) UpdateOrder(c *gin.Context) {
 }
 
 // GetSortedMenu godoc
-// @Summary 메뉴 리스트 조회 및 정렬(추천/평점/주문수/최신)
-// @Description 판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있다.
+// @Summary 메뉴 리스트 조회 및 정렬(추천/평점/주문수/최신)을 할 수 있습니다.
+// @Description 판매자가 추천설정을 한 메뉴들의 리스트를 가져올 수 있습니다.
 // @Param	grade query string	false	"condition"
 // @Param	createdat query string	false	"condition"
 // @Param	1 query int	false	"orderby"
@@ -296,7 +296,7 @@ func (p *Controller) GetOrderInfo(c *gin.Context) {
 
 // WriteReview godoc
 // @Summary 리뷰를 작성할 수 있습니다.
-// @Description 주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있다.
+// @Description 주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있습니다.
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string "ok"

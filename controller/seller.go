@@ -81,7 +81,7 @@ func (p *Controller) DeleteMenu(c *gin.Context) {
 
 // UpdateMenu godoc
 // @Summary 메뉴의 정보를 수정합니다.
-// @Description 메뉴의 이름을 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있다.
+// @Description 메뉴의 이름을 파라미터로 받고 JSON으로 수정하려는 내용을 받아 기존 메뉴의 정보를 변경할 수 있습니다.
 // @Param name path string true "메뉴를 삭제하기 위함"
 // @Accept  json
 // @Success 200 {string} string "ok"
@@ -126,8 +126,8 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 }
 
 // GetOrderList godoc
-// @Summary 접수 완료된 주문들의 리스트를 확인할 수 있다.
-// @Description 주문 상태가 "접수완료"인 메뉴들을 확인할 수 있다.
+// @Summary 접수 완료된 주문들의 리스트를 확인할 수 있습니다.
+// @Description 주문 상태가 "접수완료"인 메뉴들을 확인할 수 있습니다.
 // @Accept  json
 // @Success 200 {string} string "ok"
 // @Failure 422 {string} string "parameter not found"
@@ -146,8 +146,8 @@ func (p *Controller) GetOrderList(c *gin.Context) {
 }
 
 // UpdateOrderStatus godoc
-// @Summary 주문들의 상태를 변경할 수 있다.
-// @Description 주문 상태가 "접수완료"인 메뉴들의 상태를 변경할 수 있다.
+// @Summary 주문들의 상태를 변경할 수 있습니다.
+// @Description 주문 상태가 "접수완료"인 메뉴들의 상태를 변경할 수 있습니다.
 // @Accept  json
 // @Success 200 {string} string "ok"
 // @Failure 400 {string} string "fail, Please enter your json correctly"
@@ -183,8 +183,8 @@ func (p *Controller) UpdateOrderStatus(c *gin.Context) {
 }
 
 // GetOneMenu godoc
-// @Summary 한가지 메뉴에 대한 정보를 얻을 수 있다.
-// @Description 메뉴의 이름을 파라미터로 받고 JSON 형태로 해당 메뉴에 대한 정보를 얻을 수 있다.
+// @Summary 한가지 메뉴에 대한 정보를 얻을 수 있습니다.
+// @Description 메뉴의 이름을 파라미터로 받고 JSON 형태로 해당 메뉴에 대한 정보를 얻을 수 있습니다.
 // @Accept  json
 // @Success 200 {string} string "ok"
 // @Failure 422 {string} string "It is not a registered menu"
