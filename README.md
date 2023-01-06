@@ -85,7 +85,7 @@ ___
 
 # API List
 
-![image](https://user-images.githubusercontent.com/20445415/210942058-14a51e39-4214-473a-b517-208dff1c16a7.png)
+<img width="1443" alt="image" src="https://user-images.githubusercontent.com/20445415/210958127-5ef5d399-80f3-4eef-9d3c-943f011f367b.png">
 
 ___
 
