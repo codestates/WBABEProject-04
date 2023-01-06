@@ -87,9 +87,7 @@ ___
 ___
 
 # API List
-
-<img width="1443" alt="image" src="https://user-images.githubusercontent.com/20445415/210958127-5ef5d399-80f3-4eef-9d3c-943f011f367b.png">
-
+![image](https://user-images.githubusercontent.com/20445415/210963316-e85212a8-382b-494f-adc1-219e1063fc9b.png)
 ___
 
 # 구현
