@@ -25,7 +25,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call WriteReview, return ok by json.",
+                "summary": "리뷰를 작성할 수 있습니다.",
                 "responses": {}
             }
         },
