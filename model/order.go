@@ -82,10 +82,8 @@ func (m *Model) GetOrdersInfoByUserID(flag string, userID primitive.ObjectID) ([
 		condition := bson.M{"createdAt": -1}
 		opts = options.Find().SetSort(condition)
 		filter = bson.M{"customerid": userID, "status": bson.M{"$eq": 7}}
-		fmt.Println("배송 완료된 것 기준으로 History")
 	} else {
 		filter = bson.M{"customerid": userID, "status": bson.M{"$lt": 7}}
-		fmt.Println("배송완료 아직 안되것들")
 	}
 	var orders []Order
 	if cursor, err := m.collectionOrder.Find(ctx, filter, opts); err != nil {

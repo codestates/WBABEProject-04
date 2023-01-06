@@ -2,7 +2,6 @@ package controller
 
 import (
 	"WBABEProject-04/model"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -45,22 +44,15 @@ func (p *Controller) AddOrder(c *gin.Context) {
 	if tempOrder.Status == model.Cooking || tempOrder.Status == model.InDelivery || tempOrder.Status == model.CompleteDelivery {
 		newOrder := model.Order{}
 		newOrder.CustomerID = recvOrder.CustomerID
-		menus := []model.Menu{}
-		for _, menu := range recvOrder.Menus {
-			if tempmenu, err := p.md.GetOneMenu("name", menu.Name); err != nil {
-				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found menu", err)
-				return
-			} else {
-				if err := p.md.IncreaseMenuVolume(menu); err != nil {
-					p.RespError(c, nil, http.StatusUnprocessableEntity, "failm increase menu volume", err)
-					return
-				}
-				menus = append(menus, tempmenu)
-			}
+		if menus, err := p.CheckMenuInDB(recvOrder.Menus); err != nil {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Menu", err)
+			return
+		} else {
+			newOrder.Menus = menus
+			newOrder.Status = model.Accepting
+			newOrder.ID = primitive.NewObjectID()
 		}
-		newOrder.Menus = menus
-		newOrder.Status = model.Accepting
-		newOrder.ID = primitive.NewObjectID()
+
 		if err := p.md.CreateOrder(newOrder); err != nil {
 			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Param", err)
 			return
@@ -73,21 +65,13 @@ func (p *Controller) AddOrder(c *gin.Context) {
 			})
 		}
 	} else {
-		menus := []model.Menu{}
-		for _, menu := range recvOrder.Menus {
-			if tempmenu, err := p.md.GetOneMenu("name", menu.Name); err != nil {
-				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail find menu", err)
-				return
-			} else {
-				if err := p.md.IncreaseMenuVolume(menu); err != nil {
-					p.RespError(c, nil, http.StatusUnprocessableEntity, "fail increase menu volume", err)
-					return
-				}
-				menus = append(menus, tempmenu)
-			}
+		if menus, err := p.CheckMenuInDB(recvOrder.Menus); err != nil {
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Menu", err)
+			return
+		} else {
+			recvOrder.Menus = menus
+			tempOrder.Menus = append(tempOrder.Menus, recvOrder.Menus...)
 		}
-		recvOrder.Menus = menus
-		tempOrder.Menus = append(tempOrder.Menus, recvOrder.Menus...)
 		if err = p.md.UpdateOrder(tempOrder, recvParam); err != nil {
 			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update order", err)
 			return
@@ -197,7 +181,6 @@ func (p *Controller) UpdateOrder(c *gin.Context) {
 	resultOrder.CreatedAt = time.Now()
 	resultOrder.ID = primitive.NewObjectID()
 	resultOrder.CreatedAt = tempOrder.CreatedAt
-	fmt.Println(recvOrder.Menus)
 	if menus, err := p.CheckMenuInDB(recvOrder.Menus); err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Menu", err)
 		return

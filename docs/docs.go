@@ -18,15 +18,28 @@ const docTemplate = `{
     "paths": {
         "/history/review/:orderNumber": {
             "post": {
-                "description": "주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있다.",
+                "description": "Parameter로 menuID를 받아 해당 메뉴에 등록된 리뷰를 확인할 수 있습니다.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "리뷰를 작성할 수 있습니다.",
-                "responses": {}
+                "summary": "메뉴에 등록된 리뷰 목록을 확인할 수 있습니다.",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Not Found Param.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/menu": {
@@ -280,6 +293,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/:customerID": {
+            "get": {
+                "description": "고객의 ID를 Parameter로 받아 현재 고객이 주문한 주문 목록을 보여줍니다.",
+                "summary": "현재 고객이 주문한 주문 내용을 보여줍니다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "customerID",
+                        "name": "customerID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Not Found Param",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail, not found customer",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/order/:orderid": {
             "post": {
                 "description": "Parameter로 주문번호를 입력받고, JSON 형태로 추가하고자 하는 메뉴의 정보를 전달하면 메뉴를 추가할 수 있습니다. 배달 중일 경우 신규 주문으로 요청됩니다.",
@@ -330,19 +377,53 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
+                        "description": "The Order cannot be changed.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "fail, Not Found JSON",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "fail, Not Found Menu",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/history/:customerID": {
+            "get": {
+                "description": "고객의 ID를 Parameter로 받아 주문 내역 중 주문이 완료된 주문 목록을 보여줍니다.",
+                "summary": "주문이 완료된 주문 내역을 보여줍니다.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "customerID",
+                        "name": "customerID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "ok",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "err message",
+                        "description": "fail, Not Found Param",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "422": {
-                        "description": "fail, Not Found Order",
+                        "description": "fail, not found customer",
                         "schema": {
                             "type": "string"
                         }
