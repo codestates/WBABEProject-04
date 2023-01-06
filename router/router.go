@@ -57,39 +57,24 @@ func (r *Router) Index() *gin.Engine {
 
 	menu := e.Group("/menu", liteAuth())
 	{
-		// 메뉴 리스트 가져오기
 		menu.GET("", r.ct.GetMenuList)
-		// 메뉴 등록
 		menu.POST("", r.ct.RegisterMenu)
-		// 메뉴 삭제
 		menu.DELETE("/:menu", r.ct.DeleteMenu)
-		// 메뉴 수정
 		menu.PUT("/:menu", r.ct.UpdateMenu)
-		// 한가지 메뉴를 가져온다
 		menu.GET("/:menu", r.ct.GetOneMenu)
-		// 주문 요청 들어온 내역을 보여준다.
 		menu.GET("/order", r.ct.GetOrderList)
-		// 주문 요청으로 들어온 내역의 상태를 변경한다.
 		menu.PUT("/order", r.ct.UpdateOrderStatus)
-
 	}
 	order := e.Group("/order", liteAuth())
 	{
-		// 주문 요청
 		order.POST("", r.ct.OrderMenu)
-		// 메뉴를 정렬해서 가져온다.
 		order.GET("", r.ct.GetSortedMenu)
 		order.GET("/:customerID", r.ct.GetOrderInfo)
-
-		// 메뉴를 추가할 수 있다.
 		order.POST("/:ordernumber", r.ct.AddOrder)
-		// 과거 주문 내역을 가져올 수 있다.
 		order.GET("/history/:customerID", r.ct.GetOrderHistory)
-		// order.POST("", r.ct.OrderMenu)
-		// 과거 주문 내역에 있는 메뉴의 평점을 작성할 수 있다.
+		order.PUT("/:ordernumber", r.ct.UpdateOrder)
 		order.POST("/history/review/:orderNumber", r.ct.WriteReview)
 		order.GET("/history/review/:menuID", r.ct.GetReview)
-
 	}
 	return e
 }

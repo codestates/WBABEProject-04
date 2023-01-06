@@ -4,6 +4,7 @@ import (
 	"WBABEProject-04/logger"
 	"WBABEProject-04/model"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"fmt"
@@ -20,31 +21,23 @@ func NewController(rep *model.Model) (*Controller, error) {
 	return r, nil
 }
 
-// 에러 처리 함수
 func (p *Controller) RespError(c *gin.Context, body interface{}, status int, err ...interface{}) {
 	logger.Debug("RespError")
 	bytes, _ := json.Marshal(body)
-	// 사용자에게 전달받은 Path, 전달받은 body, 상태코드, err 메시지
 	fmt.Println("Request error", "path", c.FullPath(), "body", bytes, "status", status, "error", err)
-	// 클라이언트에게 전달
 	c.JSON(status, gin.H{
-		// 에러 메시지
-		"Error": "Request Error",
-		// 경로
-		"path": c.FullPath(),
-		// body
-		"body": bytes,
-		// 에러 코드
+		"Error":  "Request Error",
+		"path":   c.FullPath(),
+		"body":   bytes,
 		"status": status,
-		// 에러 객체
-		"error": err,
+		"error":  err,
 	})
 	c.Abort()
 }
 
 // GetMenuList godoc
-// @Summary call GetMenuList, return ok by json.
-// @Description 등록된 메뉴 리스트를 가져온다.
+// @Summary 등록된 메뉴 리스트를 가져옵니다.
+// @Description 등록된 메뉴를 JSON 형태로 가져옵니다.
 // @Router /menu [get]
 func (p *Controller) GetMenuList(c *gin.Context) {
 	result, err := p.md.GetMenu("menu")
@@ -57,4 +50,21 @@ func (p *Controller) GetMenuList(c *gin.Context) {
 		"res":  "ok",
 		"data": result,
 	})
+}
+
+func (p *Controller) CheckMenuInDB(menus []model.Menu) ([]model.Menu, error) {
+	resultMenu := []model.Menu{}
+	for _, menu := range menus {
+		if tempmenu, err := p.md.GetOneMenu("name", menu.Name); err != nil {
+			log.Println("fail, Can't find menu.")
+			return resultMenu, fmt.Errorf("fail, can't find menu")
+		} else {
+			if err := p.md.IncreaseMenuVolume(menu); err != nil {
+				log.Println("fail, The number of menu cannot be increased.")
+				return resultMenu, fmt.Errorf("fail, the number of menu cannot be increased")
+			}
+			resultMenu = append(resultMenu, tempmenu)
+		}
+	}
+	return resultMenu, nil
 }
