@@ -27,11 +27,11 @@ type Order struct {
 func (p *Controller) RegisterMenu(c *gin.Context) {
 	pMenu := model.Menu{}
 	if err := c.ShouldBindJSON(&pMenu); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, Not Found Param", nil)
 		return
 	}
 	if len(pMenu.Name) <= 0 {
-		p.RespError(c, nil, 400, "fail, enter a menu name, please", nil)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, enter a menu name, please", nil)
 		return
 	}
 	if len(pMenu.Origin) <= 0 {
@@ -39,22 +39,18 @@ func (p *Controller) RegisterMenu(c *gin.Context) {
 	}
 	pMenu.Review = nil
 	menu, _ := p.md.GetOneMenu("name", pMenu.Name)
-	result := reflect.DeepEqual(menu, model.Menu{})
-	if !result {
+	if result := reflect.DeepEqual(menu, model.Menu{}); !result {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "already resistery menu", nil)
 		return
 	}
 
-	err := p.md.CreateMenu(pMenu)
-	if err != nil {
+	if err := p.md.CreateMenu(pMenu); err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "cannot create menu.", err)
 		return
 	}
-
 	c.JSON(http.StatusCreated, gin.H{
 		"result": "ok",
 	})
-	c.Next()
 }
 
 // DeleteMenu godoc
@@ -74,16 +70,13 @@ func (p *Controller) DeleteMenu(c *gin.Context) {
 		p.RespError(c, nil, http.StatusBadRequest, "It is not a registered menu", nil)
 		return
 	}
-
 	if err := p.md.DeleteMenu(menuName); err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail delete db", err)
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"result": "ok",
 	})
-	c.Next()
 }
 
 // UpdateMenu godoc

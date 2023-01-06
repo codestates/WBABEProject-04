@@ -62,10 +62,10 @@ func (p *Controller) AddOrder(c *gin.Context) {
 		newOrder.Status = model.Accepting
 		newOrder.ID = primitive.NewObjectID()
 		if err := p.md.CreateOrder(newOrder); err != nil {
-			p.RespError(c, nil, 422, "fail, Not Found Param", err)
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Param", err)
 			return
 		} else {
-			c.JSON(http.StatusOK, gin.H{
+			c.JSON(http.StatusCreated, gin.H{
 				"res":      "ok",
 				"contents": "Adding a menu failed, requesting a new order.",
 				"status":   "new order",
@@ -92,7 +92,7 @@ func (p *Controller) AddOrder(c *gin.Context) {
 			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail update order", err)
 			return
 		} else {
-			c.JSON(http.StatusOK, gin.H{
+			c.JSON(http.StatusCreated, gin.H{
 				"res":      "ok",
 				"contents": "The menu has been added normally.",
 				"status":   "add order",
@@ -128,7 +128,7 @@ func (p *Controller) OrderMenu(c *gin.Context) {
 	for _, order := range customer.Orders {
 		tempOrder.Status = model.Accepting
 		if menus, err := p.CheckMenuInDB(order.Menus); err != nil {
-			p.RespError(c, nil, 422, "fail, Not Found Menu", err)
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Menu", err)
 			return
 		} else {
 			tempOrder.Menus = menus
@@ -164,30 +164,33 @@ func (p *Controller) OrderMenu(c *gin.Context) {
 // @Description paramert로 주문ID와 JSON으로 변경하려는 내용을 입력하여 메뉴를 변경할 수 있다. 변경 시 상태가 조리중, 배달중 일경우 실패 알림을 보낸다.
 // @Param orderid path string true "메뉴를 변경하기 위함"
 // @Success 200 {string} string "ok"
-// @Failure 400 {string} string "err message"
+// @Failure 400 {string} string "fail, Not Found Param"
+// @Failure 400 {string} string "fail, Not Found JSON"
 // @Failure 422 {string} string "fail, Not Found Order"
+// @Failure 422 {string} string "fail, Not Found Menu"
+// @Success 200 {string} string "The Order cannot be changed."
 // @Router /order/:ordernumber [put]
 func (p *Controller) UpdateOrder(c *gin.Context) {
 	sOrderNumber := c.Param("ordernumber")
 	var recvOrdernumber primitive.ObjectID
 	var err error
 	if recvOrdernumber, err = primitive.ObjectIDFromHex(sOrderNumber); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", nil)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, Not Found Param", nil)
 		return
 	}
 	var recvOrder model.Order
 	if err = c.ShouldBindJSON(&recvOrder); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found JSON", nil)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, Not Found JSON", nil)
 		c.Abort()
 		return
 	}
 	tempOrder := model.Order{}
 	if tempOrder, err = p.md.GetOrderByID(recvOrdernumber); err != nil {
-		p.RespError(c, nil, 422, "fail, Not Found Order", err)
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Order", err)
 		return
 	}
 	if tempOrder.Status >= model.Cooking {
-		p.RespError(c, nil, 400, "The Order cannot be changed.", nil)
+		p.RespError(c, nil, http.StatusOK, "The Order cannot be changed.", nil)
 		return
 	}
 	resultOrder := model.Order{}
@@ -196,7 +199,7 @@ func (p *Controller) UpdateOrder(c *gin.Context) {
 	resultOrder.CreatedAt = tempOrder.CreatedAt
 	fmt.Println(recvOrder.Menus)
 	if menus, err := p.CheckMenuInDB(recvOrder.Menus); err != nil {
-		p.RespError(c, nil, 422, "fail, Not Found Menu", err)
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Menu", err)
 		return
 	} else {
 		resultOrder.Menus = menus
@@ -228,9 +231,7 @@ func (p *Controller) UpdateOrder(c *gin.Context) {
 func (p *Controller) GetSortedMenu(c *gin.Context) {
 	query := model.QueryData{}
 	if err := c.ShouldBindQuery(&query); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, This is incorrect Query", err)
 		return
 	}
 	if query.OrderBy != 1 {
@@ -239,7 +240,6 @@ func (p *Controller) GetSortedMenu(c *gin.Context) {
 	result, err := p.md.GetSortedMenu(query)
 	if err != nil {
 		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Param", err)
-		c.Abort()
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -248,15 +248,23 @@ func (p *Controller) GetSortedMenu(c *gin.Context) {
 	})
 }
 
+// GetOrderHistory godoc
+// @Summary 주문이 완료된 주문 내역을 보여줍니다.
+// @Description 고객의 ID를 Parameter로 받아 주문 내역 중 주문이 완료된 주문 목록을 보여줍니다.
+// @Param	customerID query string	false	"customerID"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "fail, Not Found Param"
+// @Failure 422 {string} string "fail, not found customer"
+// @Router /order/history/:customerID [get]
 func (p *Controller) GetOrderHistory(c *gin.Context) {
 	customerID := c.Param("customerID")
 	if result, err := primitive.ObjectIDFromHex(customerID); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", err)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, This is incorrect Param", err)
 		c.Abort()
 		return
 	} else {
 		if orders, err := p.md.GetOrdersInfoByUserID("his", result); err != nil {
-			p.RespError(c, nil, 400, "fail, not found customer", err)
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, not found customer", err)
 			return
 		} else {
 			if len(orders) == 0 {
@@ -270,15 +278,23 @@ func (p *Controller) GetOrderHistory(c *gin.Context) {
 	}
 }
 
+// GetOrderInfo godoc
+// @Summary 현재 고객이 주문한 주문 내용을 보여줍니다.
+// @Description 고객의 ID를 Parameter로 받아 현재 고객이 주문한 주문 목록을 보여줍니다.
+// @Param	customerID query string	false	"customerID"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "fail, Not Found Param"
+// @Failure 422 {string} string "fail, not found customer"
+// @Router /order/:customerID [get]
 func (p *Controller) GetOrderInfo(c *gin.Context) {
 	customerID := c.Param("customerID")
 	if result, err := primitive.ObjectIDFromHex(customerID); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", err)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, This is incorrect Param", err)
 		c.Abort()
 		return
 	} else {
 		if orders, err := p.md.GetOrdersInfoByUserID("", result); err != nil {
-			p.RespError(c, nil, 400, "fail, not found customer", err)
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, not found customer", err)
 			return
 		} else {
 			if len(orders) == 0 {
@@ -298,37 +314,40 @@ func (p *Controller) GetOrderInfo(c *gin.Context) {
 // WriteReview godoc
 // @Summary 리뷰를 작성할 수 있습니다.
 // @Description 주문 번호를 확인 후 배송완료가 된 주문이면 리뷰와 평점을 작성할 수 있다.
-// @name WriteReview
 // @Accept  json
 // @Produce  json
+// @Success 200 {string} string "ok"
+// @Success 200 {string} string "Your order has not been completed."
+// @Failure 400 {string} string "fail, This is incorrect JSON"
+// @Failure 400 {string} string "You entered the wrong order number"
+// @Failure 422 {string} string "fail, Not Found Order"
+// @Failure 422 {string} string "fail, create review"
 // @Router /history/review/:orderNumber [post]
 func (p *Controller) WriteReview(c *gin.Context) {
 	orderNumber := c.Param("orderNumber")
 	recvReview := model.Review{}
 	var err error
 	if err = c.ShouldBindJSON(&recvReview); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
+		p.RespError(c, nil, http.StatusBadRequest, "fail, This is incorrect JSON", err)
 		return
 	}
 
 	var orderID primitive.ObjectID
 	if orderID, err = primitive.ObjectIDFromHex(orderNumber); err != nil {
-		p.RespError(c, nil, 400, "You entered the wrong order number.", err)
+		p.RespError(c, nil, http.StatusBadRequest, "You entered the wrong order number.", err)
 		return
 	}
 
 	if _, err := p.md.GetOrderByID(orderID); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Order", err)
+		p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Order", err)
 		return
 	} else {
 		if orderStatus, err := p.md.GetOrderStatusByOrderID(orderID); err != nil {
-			p.RespError(c, nil, 400, "fail, Not Found Order", err)
+			p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, Not Found Order", err)
 			return
 		} else {
 			if orderStatus != 7 {
-				p.RespError(c, nil, 200, "Your order has not been completed.", err)
+				p.RespError(c, nil, http.StatusOK, "Your order has not been completed.", err)
 				return
 			}
 			resultReview := model.Review{}
@@ -341,7 +360,7 @@ func (p *Controller) WriteReview(c *gin.Context) {
 			resultReview.IsWrite = true
 			if err = p.md.CreateReview(resultReview); err != nil {
 				log.Println("fail insert review")
-				p.RespError(c, nil, 422, "fail, create review", err)
+				p.RespError(c, nil, http.StatusUnprocessableEntity, "fail, create review", err)
 				return
 			} else {
 				c.JSON(http.StatusOK, gin.H{
@@ -352,10 +371,18 @@ func (p *Controller) WriteReview(c *gin.Context) {
 	}
 }
 
+// GetReview godoc
+// @Summary 메뉴에 등록된 리뷰 목록을 확인할 수 있습니다.
+// @Description Parameter로 menuID를 받아 해당 메뉴에 등록된 리뷰를 확인할 수 있습니다.
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string "ok"
+// @Success 400 {string} string "fail, Not Found Param."
+// @Router /history/review/:orderNumber [post]
 func (p *Controller) GetReview(c *gin.Context) {
 	menuID := c.Param("menuID")
 	if pMenuID, err := primitive.ObjectIDFromHex(menuID); err != nil {
-		p.RespError(c, nil, 400, "fail, Not Found Param", err)
+		p.RespError(c, nil, http.StatusBadRequest, "fail, Not Found Param", err)
 		c.Abort()
 		return
 	} else {
