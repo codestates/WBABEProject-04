@@ -41,7 +41,7 @@ ___
 
 ## API List
 
-![image](https://user-images.githubusercontent.com/20445415/209746766-4c511981-4843-4d41-8467-198469916c39.png)
+![image](https://user-images.githubusercontent.com/20445415/210942058-14a51e39-4214-473a-b517-208dff1c16a7.png)
 
 
 - 등록된 메뉴 리스트 가져오기(GET)
